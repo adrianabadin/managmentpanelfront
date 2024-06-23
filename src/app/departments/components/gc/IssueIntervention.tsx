@@ -57,7 +57,7 @@ export function IssueIntervention({
   });
   const [sendMail] = useSendMailMutation();
   const [addIntervention] = useAddInterventionMutation();
-  const { name, lastname } = useAppSelector((state) => state.auth);
+  const { name, lastname, id: userId } = useAppSelector((state) => state.auth);
   return (
     <Dialog
       open={open}
@@ -85,6 +85,7 @@ export function IssueIntervention({
             description: data.description,
             files: data.files,
             id,
+            userId,
           })
             .unwrap()
             .then(() => setOpen(false))
@@ -95,7 +96,7 @@ export function IssueIntervention({
             to,
             nombre: username,
             autor: `${name} ${lastname}`,
-            body: "Se ha realizado una intervencion en tu gestion, cuando tengamos respuesta de la misma te lo comunicaremos",
+            body: `Se ha realizado una intervencion en tu gestion ${id}, cuando tengamos respuesta de la misma te lo comunicaremos`,
           });
         })}
       >

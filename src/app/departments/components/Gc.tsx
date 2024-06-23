@@ -14,6 +14,7 @@ import {
 } from "@material-tailwind/react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { IssueView } from "./gc/IssueView";
+import { clearAuth } from "@/app/ReduxGlobals/Features/authSlice";
 
 function Gc() {
   const {
@@ -40,6 +41,10 @@ function Gc() {
     socialSecurityNumber: "",
     state: "",
   });
+  if (isError && "data" in error && error.data === "Unauthorized") {
+    clearAuth();
+  }
+  console.log(error, "data");
   return (
     <section className="w-full flex justify-center">
       <Card className="w-full mx-4 mt-4">
@@ -69,19 +74,28 @@ function Gc() {
             e-Mail
           </Typography>
           {isSuccess && Array.isArray(issues) ? (
-            issues.map((item) => (
-              <IssueRow
-                key={item.id}
-                data={item}
-                setOpen={setOpen}
-                setIssue={setIssue}
-              />
-            ))
+            issues.map((item, i) => {
+              console.log(item, "dada");
+              return (
+                <IssueRow
+                  key={item.id}
+                  data={item}
+                  setOpen={setOpen}
+                  setIssue={setIssue}
+                />
+              );
+            })
           ) : isError ? (
-            <div className="flex flex-col outline-2 outline-red-500 p-5 ">
-              <p className="font-bold text-lg ">Error</p>
-              <p className="text-md ">Sin conexion</p>
-            </div>
+            "data" in error && error.data === "Unauthorized" ? (
+              <div className="flex flex-col outline-2 outline-red-500 p-5 text-red-500 w-full col-span-12 font-sans justify-center text-3xl text-center">
+                Acceso no Autorizado
+              </div>
+            ) : (
+              <div className="flex flex-col outline-2 outline-red-500 p-5 ">
+                <p className="font-bold text-lg ">Error</p>
+                <p className="text-md ">Sin conexion</p>
+              </div>
+            )
           ) : (
             <Spinner fontSize={60} className="mx-auto" />
           )}
@@ -104,6 +118,7 @@ function IssueRow({
   return (
     <Button
       variant="filled"
+      key={data.id}
       className={`${
         new Date(data.createdAt).getMilliseconds() -
           new Date().getMilliseconds() >
@@ -113,6 +128,7 @@ function IssueRow({
       } p-0 m-0 py-3 w-full shadow-none border-none col-span-12 grid grid-cols-12 hover:bg-blue-200`}
       onClick={() => {
         setOpen(true);
+        console.log(data);
         setIssue(data);
       }}
     >
@@ -120,7 +136,7 @@ function IssueRow({
         {new Date(data.createdAt).toLocaleDateString()}
       </div>
       <div className="col-span-3 text-blue-gray-700">{`${data.name} ${data.lastName}`}</div>
-      <div className="col-span-2 text-blue-gray-700">{data.kind}</div>
+      <div className="col-span-2 text-blue-gray-700">{data.kind.name}</div>
       <div className="col-span-2 text-blue-gray-700">{data.phone}</div>
       <div className="col-span-3 text-blue-gray-700">{data.email}</div>
     </Button>

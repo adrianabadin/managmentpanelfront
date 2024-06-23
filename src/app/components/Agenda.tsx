@@ -44,6 +44,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppSelector } from "../ReduxGlobals/store";
 import Link from "next/link";
 import { DocumentCreateError } from "../../../../Backend/google/google.errors";
+import { clearAuth } from "../ReduxGlobals/Features/authSlice";
 
 export const TaskSchema = z.object({
   title: z.string().min(3, { message: "debe tener al menos 3 caracteres" }),
@@ -75,12 +76,35 @@ export default function TaskManager({
   // tasks: TaskType[];
 }) {
   const { username } = useAppSelector((state) => state.auth);
-  const { data: tasks } = useGetTasksQuery({ ...filter, username });
-  const { data: completedTasks } = useGetTasksQuery({
+  const {
+    data: tasks,
+    isError: isErrorTasks,
+    error: errorTasks,
+  } = useGetTasksQuery({ ...filter, username });
+  const {
+    data: completedTasks,
+    isError: isErrorCompleted,
+    error: errorCompleted,
+  } = useGetTasksQuery({
     ...filter,
     username,
     isCompleted: true,
   });
+  if (
+    isErrorTasks &&
+    "data" in errorTasks &&
+    errorTasks.data == "Unauthorized"
+  ) {
+    console.log("borrando auth");
+    clearAuth();
+  }
+  if (
+    isErrorCompleted &&
+    "data" in errorCompleted &&
+    errorCompleted.data == "Unauthorized"
+  ) {
+    clearAuth();
+  }
   const { data: departments, refetch } = useGetDepartmentsQuery({
     username,
   });
@@ -173,6 +197,13 @@ export default function TaskManager({
                 key={task.id}
               />
             ))
+          ) : isError &&
+            errorTasks !== undefined &&
+            "data" in errorTasks &&
+            errorTasks.data === "Unauthorized" ? (
+            <div className="text-red-500 text-3xl text-center w-full">
+              Acceso Restringido
+            </div>
           ) : (
             <div className="col-start-1 col-span-6">
               <Typography variant="h3" color="red">
@@ -215,7 +246,7 @@ export default function TaskManager({
                   id={task.id}
                   key={task.id}
                   setChecked={setChecked}
-                  resetButton={resetCreateDocument}
+                  resetCreateDocument={resetCreateDocument}
                 />
               ))
             : null}
@@ -250,15 +281,15 @@ export default function TaskManager({
                   text,
                   user: username,
                 })
-                  .then((response) => console.log(response))
-                  .catch((e) => console.log(e));
+                  .then((response) => console.log(response, "sllsfa"))
+                  .catch((e) => console.log(e, "error"));
                 console.log("Generando Informe", text);
               }}
             >
               {isLoading ? <Spinner /> : "Informe"}
             </Button>
           ) : (
-            <Link
+            <a
               href={`https://docs.google.com/document/d/${createDocResponse.id}/edit`}
               target="_blank"
               rel="noopener noreferrer"
@@ -271,7 +302,7 @@ export default function TaskManager({
               >
                 Ver
               </Button>
-            </Link>
+            </a>
           )}
         </CardBody>
 
@@ -512,13 +543,21 @@ function CreateTaskModal({
 
   const onSubmit = (data: TaskType) => {
     if (task?.title === undefined)
-      createTask({ ...data, date: `${data.date}T${data.time}:00.0000` });
-    else
+      createTask({
+        ...data,
+        date: new Date(data.date + "T" + data.time).toISOString(),
+      });
+    else {
+      let hora;
+      if (data.time.length < 5) hora = `0${data.time}`;
+      else hora = `${data.time}`;
+      let fechaData = new Date(data.date + "T" + data.time).toISOString();
       updateTask({
         ...data,
-        date: `${data.date}T${data.time}:00.0000`,
+        date: fechaData,
         id: task.id,
       });
+    }
     handler();
   };
   useEffect(() => {

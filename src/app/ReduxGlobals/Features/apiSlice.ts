@@ -6,6 +6,7 @@ import { DemografyCreateType } from "@/app/departments/config/components/AddStat
 import { CloseTaskType, TaskType } from "@/app/components/Agenda"
 import { AddKOI } from "@/app/departments/config/components/AddKindOfIssue"
 import { FilesDescriptor, UserIssue } from "@/app/GCiudadana/components/IssueForm"
+import { url } from "inspector"
 
 
 const dotenvSchema = z.object({
@@ -28,10 +29,77 @@ declare global{
   "text": "Estudio o practica para diagnostico o tratamiento"
 }
  */
+
+/**
+ * {
+  "id": "fc99b09b-ce96-459e-b84c-b687c4a48746",
+  "createdAt": "2024-06-20T18:32:06.656Z",
+  "updatedAt": "2024-06-20T18:32:06.656Z",
+  "email": "AABADIN@GMAIL.COM",
+  "name": "Adrian",
+  "lastName": "Abadin",
+  "socialSecurityNumber": "28278216",
+  "phone": "02344426406",
+  "demographyId": "15760c04-a6e7-4ea3-850e-bc1222b3120c",
+  "description": "Trastorno de memoria",
+  "kindOfIssueId": "11beef4e-2fe1-4d66-bd9d-746469ad763f",
+  "issueState": "pending",
+  "email2": null,
+  "phone2": null,
+  "hash": null,
+  "usersId": null,
+  "interventions": [
+    {
+      "id": "caa99bec-50c6-47f5-8613-28be84a2ca85",
+      "createdAt": "2024-06-22T01:08:14.879Z",
+      "updatedAt": "2024-06-22T01:08:14.879Z",
+      "text": "Otra intervencion",
+      "issuesByUserId": "fc99b09b-ce96-459e-b84c-b687c4a48746",
+      "hash": null,
+      "usersId": "jnXJjvf-RhunzmzI9vxPq",
+      "files": [
+        {
+          "driveId": "18G-qhG0pf8V6L584_vIHcxmk8FtvXClS",
+          "description": "dni",
+          "name": "ROSALES RXS 2.jpg"
+        }
+      ],
+      "user": {
+        "username": "AABADIN@GMAIL.COM",
+        "name": "Adrian",
+        "lastname": "abadin"
+      }
+    }
+  ]
+}
+ */
+export const getInterventionSchema=z.object({
+    id:z.string(),
+    text:z.string(),
+    createdAt:z.date(),
+    user:z.object({
+        username:z.string().email(),
+        name:z.string(),
+        lastname:z.string()
+
+    }),
+    files:z.array(z.object({
+        driveId:z.string(),
+        description:z.string(),
+        name:z.string()
+    }))
+
+})
+export const getIssueWithIntervention = z.object({
+    id: z.string(),
+    createdAt: z.date(),
+    interventions: z.array(getInterventionSchema)})
+
 export const interventionSchema=z.object({
     id:z.string({required_error:"Debes proveer el id de la gestion"}),
       description:z.string({required_error:"Debes proveer una descripcion"}).min(10,{message:"La descripcion de tu intervencion debe tener al menos 10 letras"}),
-      files:z.array(FilesDescriptor).optional()
+      files:z.array(FilesDescriptor).optional(),
+      userId:z.string({required_error:"Debes proveer un id de usuario"})
     })
     
 export const mailSchema = z.object({
@@ -182,6 +250,8 @@ export type TaskFilterType ={username?:string,state?:string,department?:string,i
 export type AddMember ={service?:string,state?:string}
 export type MemberAdd ={query:AddMember,body:{title:string,description:string}}
 export type Mail = z.infer<typeof mailSchema>
+export type GetIssueWithInterventions =z.infer<typeof getIssueWithIntervention>
+export type GetInterventions = z.infer<typeof getInterventionSchema>
 export type GetIssues ={
     id:string
     createdAt:Date
@@ -193,9 +263,9 @@ export type GetIssues ={
     phone:string
     phone2:string
     description: string
-    files: Array<{data:string,name:string,id:string}>
-    kind: string
-    state:string
+    files: Array<{driveId:string,name:string,id:string,description:string}>
+    kind: {name:string}
+    state:{state:string}
 }
 /**
  * API
@@ -224,6 +294,12 @@ export const apiSlice=createApi({
         logout:builder.query<any,undefined>({
             query:()=>({
                 url:'/auth/logout',
+                method:"get"
+            })
+        }),
+        jwtLogin:builder.query<AuthResponseType,undefined>({
+            query:()=>({
+                url:"auth/jwt",
                 method:"get"
             })
         }),
@@ -292,7 +368,6 @@ export const apiSlice=createApi({
         }),
         getTasks:builder.query<TasksResponseType[],TaskFilterType>({
             query:(query)=>{
-                
                 return {url:`/tasks/get${query !== undefined ? "?"+Object.keys(query).map(item=>`${item}=${query[item as keyof typeof query]}`).join("&"):""}`,  //"/tasks/get"+(query !== undefined && query !==null)?"?":""+ (query!== undefined && query !==null)? ():"" ,
                 method:"get"}
             },providesTags:[{type:"tasks"}]
@@ -605,11 +680,25 @@ export const apiSlice=createApi({
                 method:"post",
                 body
             }),invalidatesTags:[{type:"interventions"}]
+        }),
+        getInterventions:builder.query<GetIssueWithInterventions,string>({
+            query:(id)=>({
+                url:`/gc/interventions?id=${id}`,
+                method:"get"
+            })
+        }),
+        getFiles:builder.query<{data:string},string>({
+            query:(id)=>({
+                url:"/google/file?id="+id,
+                method:"get"
+            })
         })
     })
+
     })
-export const {
+export const {useGetFilesQuery,
     useAddInterventionMutation,
+    useGetInterventionsQuery,
     useSendMailMutation,
     useAddMailMutation,
     useAddPhoneMutation,
@@ -654,5 +743,6 @@ export const {
     useSetAdminMutation,
     useDropAdminMutation,
     useCreateDocumentMutation,
-    useAddServiceMutation
+    useAddServiceMutation,
+    useJwtLoginQuery
 }=apiSlice

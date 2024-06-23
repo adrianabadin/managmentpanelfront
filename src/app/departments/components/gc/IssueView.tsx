@@ -5,6 +5,7 @@ import download from "@/icons/download.svg";
 import close from "@/icons/close.svg";
 import upload from "@/icons/UPLOAD.svg";
 import addPhone from "@/icons/addPhone.svg";
+import history from "@/icons/history.svg";
 import { GetIssues } from "@/app/ReduxGlobals/Features/apiSlice";
 import {
   Dialog,
@@ -20,6 +21,7 @@ import { AddPhone } from "./AddPhone";
 import { DocumentationView } from "./DocumentationView";
 import { IssueIntervention } from "./IssueIntervention";
 import Image from "next/image";
+import InterventionHistory from "./InterventionHistory";
 export function IssueView({
   open,
   setOpen,
@@ -31,6 +33,7 @@ export function IssueView({
 }) {
   const [addPhoneOpen, setAddPhoneOpen] = useState<boolean>(false);
   const [addMailOpen, setAddMailOpen] = useState<boolean>(false);
+  const [interventionHistory, setOpenHistory] = useState<boolean>(false);
   const [openIntervention, setIssueIntervencionOpen] = useState<boolean>(false);
   const [openDoc, setOpenDoc] = useState<boolean>(false);
   return (
@@ -50,7 +53,7 @@ export function IssueView({
             color="white"
             className="bg-pink-400 rounded-2xl p-1 px-3"
           >
-            {`${issue.state}/${issue.kind}`}
+            {`${issue.state.state}/${issue.kind.name}`}
           </Typography>
         </div>
       </DialogHeader>
@@ -139,6 +142,18 @@ export function IssueView({
         <Button
           variant="filled"
           className="w-fit bg-transparent shadow-none border-none outline-none"
+          onClick={() => setOpenHistory(true)}
+        >
+          <Image
+            src={history}
+            alt="Historia de Intervenciones"
+            width={64}
+            height={64}
+          />
+        </Button>
+        <Button
+          variant="filled"
+          className="w-fit bg-transparent shadow-none border-none outline-none"
           onClick={() => setOpen(false)}
         >
           <Image
@@ -175,6 +190,11 @@ export function IssueView({
       />
       <AddPhone open={addPhoneOpen} setOpen={setAddPhoneOpen} id={issue.id} />
       <AddMail open={addMailOpen} setOpen={setAddMailOpen} id={issue.id} />
+      <InterventionHistory
+        id={issue.id}
+        isOpen={interventionHistory}
+        setOpen={setOpenHistory}
+      />
     </Dialog>
   );
 }

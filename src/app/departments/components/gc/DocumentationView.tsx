@@ -1,25 +1,52 @@
 import download from "@/icons/download.svg";
 import close from "@/icons/close.svg";
 
-import { GetIssues } from "@/app/ReduxGlobals/Features/apiSlice";
+import {
+  apiSlice,
+  GetInterventions,
+  GetIssues,
+  GetIssueWithInterventions,
+  useGetFilesQuery,
+} from "@/app/ReduxGlobals/Features/apiSlice";
 import {
   Dialog,
   DialogHeader,
   Typography,
   Button,
   DialogBody,
+  Spinner,
 } from "@material-tailwind/react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import Image from "next/image";
 export function DocumentationView({
   open,
   setOpen,
+  id,
   files,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  files: GetIssues["files"];
+  id: string;
+  files?: { driveId: string; name: string; description: string; id: string }[];
 }) {
+  const [getFiles, { isFetching }] = apiSlice.endpoints.getFiles.useLazyQuery();
+  const dataRef = useRef<
+    Array<{ id: string; name: string; description: string; data: string }>
+  >([{ id: "", name: "", description: "", data: "" }]);
+  useEffect(() => {
+    dataRef.current = [{ id: "", name: "", description: "", data: "" }];
+    files?.forEach((item) => {
+      getFiles(item.driveId)
+        .unwrap()
+        .then((res) => {
+          if (dataRef.current.length === 1)
+            dataRef.current[0] = { ...item, data: res.data };
+          else dataRef.current?.push({ ...item, data: res.data });
+          console.log(dataRef.current, "XXX");
+        })
+        .catch((e) => console.log(e));
+    });
+  }, [files, getFiles]);
   return (
     <Dialog open={open} handler={() => setOpen((prev) => !prev)} size="lg">
       <DialogHeader title="Documentacion Adjunta">
@@ -37,38 +64,44 @@ export function DocumentationView({
         </div>
       </DialogHeader>
       <DialogBody className="grid grid-cols-3 gap-3 grid-flow-dense">
-        {Array.isArray(files) && files.length > 0
-          ? files.map((file, index) => {
-              const blob = new Blob([Buffer.from(file.data, "base64")]);
-              const url = URL.createObjectURL(blob);
+        {Array.isArray(dataRef.current) && dataRef.current.length > 0
+          ? dataRef.current.map((file, index) => {
+              if (file.data !== undefined && file.data !== null) {
+                const blob = new Blob([Buffer.from(file.data, "base64")]);
+                const url = URL.createObjectURL(blob);
 
-              return (
-                <article
-                  key={file.id}
-                  className="relative m-8 flex justify-center"
-                >
-                  <Image
-                    src={url}
-                    alt={file.name}
-                    width={500}
-                    height={100}
-                    className="object-contain rounded-lg border-2 border-blue-gray-400 shadow-lg "
-                  />
-                  <a
-                    download={`${file.name}${index}.jpg`}
-                    href={url}
-                    className="absolute bottom-0 backdrop-opacity-30 bg-gray-100 rounded-full p-1 bg-opacity-80 backdrop-blur-md hover:scale-105"
+                return isFetching ? (
+                  <Spinner />
+                ) : file.data === "" ? null : (
+                  <article
+                    key={index}
+                    className="relative m-8 flex justify-center"
                   >
+                    (
                     <Image
-                      src={download}
-                      alt="Descargar"
-                      width={48}
-                      height={48}
-                      className="opacity-100 "
+                      src={url}
+                      alt="Documentacion"
+                      width={500}
+                      height={100}
+                      className="object-contain rounded-lg border-2 border-blue-gray-400 shadow-lg "
                     />
-                  </a>
-                </article>
-              );
+                    )
+                    <a
+                      download={`${file.name}${index}.jpg`}
+                      href={url}
+                      className="absolute bottom-0 backdrop-opacity-30 bg-gray-100 rounded-full p-1 bg-opacity-80 backdrop-blur-md hover:scale-105"
+                    >
+                      <Image
+                        src={download}
+                        alt="Descargar"
+                        width={48}
+                        height={48}
+                        className="opacity-100 "
+                      />
+                    </a>
+                  </article>
+                );
+              } else return null;
             })
           : " "}
       </DialogBody>

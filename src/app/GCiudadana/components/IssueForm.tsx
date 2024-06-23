@@ -314,15 +314,16 @@ export function IssueForm() {
               console.log(data);
               createIssue(data)
                 .unwrap()
-                .then((response) =>
+                .then((response) => {
+                  console.log(response);
                   swal.fire(
                     "Gestion Iniciada",
                     `Su codigo de gestion es :<br><strong>${
                       response.id as string
                     }</strong><br> recibira un email confirmando esto y se comunicaran con ud a la brevedad.`,
                     "success"
-                  )
-                )
+                  );
+                })
                 .catch((e) => swal.fire("Error", e.text, "error"));
             } else
               swal.fire(

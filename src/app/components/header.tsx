@@ -17,6 +17,7 @@ import SignUpModal from "./Signup";
 import { useAppSelector } from "../ReduxGlobals/store";
 import {
   apiSlice,
+  useJwtLoginQuery,
   useLoginMutation,
   useLogoutQuery,
 } from "../ReduxGlobals/Features/apiSlice";
@@ -36,6 +37,7 @@ export function StickyNavbar() {
     logout(undefined);
     dispatch(clearAuth());
   };
+  const { isFetching, data: jwtData } = useJwtLoginQuery(undefined);
   const [login, { isLoading }] = useLoginMutation();
   console.log(username);
   React.useEffect(() => {
@@ -53,7 +55,7 @@ export function StickyNavbar() {
         color="white"
         className="p-1 font-normal"
       >
-        <Link href="/direccion" className="flex items-center">
+        <Link href="#" className="flex items-center">
           Direccion
         </Link>
       </Typography>
@@ -63,7 +65,7 @@ export function StickyNavbar() {
         color="white"
         className="p-1 font-normal"
       >
-        <Link href="/territory" className="flex items-center">
+        <Link href="#" className="flex items-center">
           Territorios
         </Link>
       </Typography>
