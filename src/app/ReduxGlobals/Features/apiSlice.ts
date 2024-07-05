@@ -692,11 +692,20 @@ export const apiSlice=createApi({
                 url:"/google/file?id="+id,
                 method:"get"
             })
+        }),
+        closeIssue:builder.mutation<{id:string},Intervention>({
+            query:(data)=>({
+                url:"/gc/issue",
+                method:"delete",
+                body:data
+            })
         })
     })
 
     })
-export const {useGetFilesQuery,
+export const {
+    useCloseIssueMutation,
+    useGetFilesQuery,
     useAddInterventionMutation,
     useGetInterventionsQuery,
     useSendMailMutation,

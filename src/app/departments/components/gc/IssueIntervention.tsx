@@ -21,6 +21,7 @@ import Image from "next/image";
 import { InterventionResponse } from "./InterventionResponse";
 import {
   useAddInterventionMutation,
+  useCloseIssueMutation,
   useSendMailMutation,
 } from "@/app/ReduxGlobals/Features/apiSlice";
 import { useAppSelector } from "@/app/ReduxGlobals/store";
@@ -56,6 +57,7 @@ export function IssueIntervention({
     mode: "all",
     resolver: zodResolver(interventionSchema),
   });
+  const [closeIssue] = useCloseIssueMutation();
   const [sendMail] = useSendMailMutation();
   const [addIntervention] = useAddInterventionMutation();
   const { name, lastname, id: userId } = useAppSelector((state) => state.auth);
@@ -136,7 +138,35 @@ export function IssueIntervention({
               alt="Subir Documentacion"
             />
           </Button>
-          <Button>
+          <Button
+            variant="filled"
+            className="bg-transparent outline-none shadow-none border-none"
+            onClick={() => {
+              handleSubmit((data) => {
+                closeIssue({
+                  description: data.description,
+                  files: data.files,
+                  id,
+                  userId,
+                })
+                  .unwrap()
+                  .then(() => {
+                    setOpen(false);
+                    sendMail({
+                      to,
+                      nombre: username,
+                      autor: `${name} ${lastname}`,
+                      body: `Su gestion ${id}, se ha cerrado:\n
+                  ${data.description}}                    
+                    `,
+                    });
+                  })
+                  .catch((e) => {
+                    swal.fire("Error", e.text, "error");
+                  });
+              });
+            }}
+          >
             <Image src={cerrar} alt="Cerrar Gestion" width={48} height={48} />
           </Button>
           <Button
