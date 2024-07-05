@@ -16,25 +16,24 @@ import Programa from "./components/gc/Basico";
 export default function Departments() {
   const { Departments } = useAppSelector((state) => state.auth);
   const [choice, setChoice] = useState<string>("");
+  console.log(Departments, "ASignados");
   return (
     <>
       <main className="grid grid-cols-12 bg-gray-200  min-h-screen  flex-col  ">
         <nav className="col-span-3  bg-gray-300 w-full flex flex-col">
-          {Departments !== undefined
-            ? Departments?.map((item) => {
-                return (
-                  <Button
-                    key={item.id}
-                    variant="gradient"
-                    color="white"
-                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
-                    onClick={() => setChoice(item.name)}
-                  >
-                    {item.name}
-                  </Button>
-                );
-              })
-            : null}
+          {Departments?.map((item) => {
+            return (
+              <Button
+                key={item.id}
+                variant="gradient"
+                color="white"
+                className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                onClick={() => setChoice(item.name)}
+              >
+                {item.name}
+              </Button>
+            );
+          })}
           {/*<Item name="gestion" setChoice={setChoice} />
            <Button
             variant="gradient"
