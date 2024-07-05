@@ -37,7 +37,7 @@ export function SignUpModal({
     resolver: zodResolver(SignUpSchema),
     mode: "onBlur",
   });
-  const [signup] = useSignUpMutation();
+  const [signup, { isLoading }] = useSignUpMutation();
   const onSubmit = (data: SignUpType) => {
     signup({ ...data, password2: undefined as any })
       .unwrap()
@@ -139,9 +139,7 @@ export function SignUpModal({
               console.log(result.error, result.error.issues[0].path);
             }
           }}
-        >
-          ada
-        </button>
+        ></button>
       </Dialog>
     </>
   );

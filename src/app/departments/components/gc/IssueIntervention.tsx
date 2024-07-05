@@ -4,6 +4,7 @@ import FileUpload from "@/app/GCiudadana/components/FileUpload";
 import { FilesDescriptor } from "@/app/GCiudadana/components/IssueForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import swal from "sweetalert2";
+import cerrar from "@/icons/cerrarIssue.svg";
 import {
   Dialog,
   DialogHeader,
@@ -134,6 +135,9 @@ export function IssueIntervention({
               height={48}
               alt="Subir Documentacion"
             />
+          </Button>
+          <Button>
+            <Image src={cerrar} alt="Cerrar Gestion" width={48} height={48} />
           </Button>
           <Button
             variant="gradient"

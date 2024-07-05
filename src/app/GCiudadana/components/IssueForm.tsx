@@ -130,7 +130,6 @@ export function IssueForm() {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
-  console.log(errors, Object.keys(errors).length, "DATA");
   return isFetching || koisFetch ? (
     <Spinner />
   ) : (
@@ -239,7 +238,9 @@ export function IssueForm() {
                   containerProps={{ className: "mt-10 mb-10" }}
                   {...field}
                   onChange={(data) =>
-                    data !== undefined ? setValue("state", data) : null
+                    data !== undefined || data !== null || data >= 0
+                      ? setValue("state", data)
+                      : setValue("state", "")
                   }
                 >
                   {isFetching || data === undefined ? (
@@ -259,7 +260,7 @@ export function IssueForm() {
             )}
           ></Controller>
 
-          <Controller
+          {/* <Controller
             name="kind"
             control={control}
             render={({ field }) => (
@@ -270,7 +271,12 @@ export function IssueForm() {
                   className="col-span-2 col-start-1 text-black"
                   containerProps={{ className: "mt-10 mb-10" }}
                   {...field}
-                  onChange={(data) => field.onChange(data)}
+                  onChange={(data) => {
+                    data !== undefined || data !== null || data >= 0
+                      ? setValue("state", data !== undefined ? data : "")
+                      : setValue("state", "");
+                    //field.onChange(data)
+                  }}
                 >
                   {Array.isArray(kois)
                     ? kois.map((item) => (
@@ -285,7 +291,7 @@ export function IssueForm() {
                 </p>
               </Suspense>
             )}
-          ></Controller>
+          ></Controller> */}
           <FileButton
             text="Subir documentacion (Formato JPG)"
             handleClick={() => setOpen((prev) => !prev)}

@@ -12,6 +12,7 @@ import {
   Button,
   DialogBody,
   DialogFooter,
+  Spinner,
 } from "@material-tailwind/react";
 
 import { Dispatch, SetStateAction } from "react";
@@ -44,7 +45,7 @@ export function AddPhone({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AddPhoneType>({
     resolver: zodResolver(addPhoneSchema),
     mode: "all",
@@ -70,7 +71,9 @@ export function AddPhone({
           console.log(data);
           addPhone({ id, phone: data.phone })
             .unwrap()
-            .then()
+            .then(() => {
+              setOpen(false);
+            })
             .catch((error) => swal.fire("Error", error.message, "error"));
         })}
       >
@@ -87,7 +90,7 @@ export function AddPhone({
             Cancelar
           </Button>
           <Button variant="gradient" color="blue" type="submit">
-            Agregar
+            {isSubmitting ? <Spinner /> : "Agregar"}
           </Button>
         </DialogFooter>
       </form>

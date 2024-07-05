@@ -18,6 +18,7 @@ import {
   DialogBody,
   DialogFooter,
   Input,
+  Spinner,
 } from "@material-tailwind/react";
 
 import { Dispatch, SetStateAction } from "react";
@@ -39,11 +40,11 @@ export function AddMail({
   setOpen: Dispatch<SetStateAction<boolean>>;
   id: string;
 }) {
-  const [addMail] = useAddMailMutation();
+  const [addMail, { isLoading }] = useAddMailMutation();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AddMailType>({
     resolver: zodResolver(addMailSchema),
     mode: "all",
@@ -69,7 +70,9 @@ export function AddMail({
           console.log(data);
           addMail({ id, mail: data.email })
             .unwrap()
-            .then()
+            .then(() => {
+              setOpen(false);
+            })
             .catch((error) => {
               console.log(error);
               swal.fire("Error", `${error.message}`, "error");
@@ -89,7 +92,7 @@ export function AddMail({
             Cancelar
           </Button>
           <Button variant="gradient" color="blue" type="submit">
-            Agregar
+            {isSubmitting ? <Spinner /> : "Agregar"}
           </Button>
         </DialogFooter>
       </form>
