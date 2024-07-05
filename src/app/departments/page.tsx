@@ -14,9 +14,10 @@ import Gc from "./components/Gc";
 import Programa from "./components/gc/Basico";
 
 export default function Departments() {
-  const { Departments } = useAppSelector((state) => state.auth);
+  const auth = useAppSelector((state) => state.auth);
   const [choice, setChoice] = useState<string>("");
-  console.log(Departments, "ASignados");
+  const { Departments } = auth;
+  console.log(auth, "ASignados");
   return (
     <>
       <main className="grid grid-cols-12 bg-gray-200  min-h-screen  flex-col  ">
