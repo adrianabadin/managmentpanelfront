@@ -142,29 +142,29 @@ export function IssueIntervention({
             variant="filled"
             className="bg-transparent outline-none shadow-none border-none"
             onClick={() => {
-              handleSubmit((data) => {
-                closeIssue({
-                  description: data.description,
-                  files: data.files,
-                  id,
-                  userId,
-                })
-                  .unwrap()
-                  .then(() => {
-                    setOpen(false);
-                    sendMail({
-                      to,
-                      nombre: username,
-                      autor: `${name} ${lastname}`,
-                      body: `Su gestion ${id}, se ha cerrado:\n
+              const data = getValues();
+              console.log(data, "Contenido");
+              closeIssue({
+                description: data.description,
+                files: data.files,
+                id,
+                userId,
+              })
+                .unwrap()
+                .then(() => {
+                  setOpen(false);
+                  sendMail({
+                    to,
+                    nombre: username,
+                    autor: `${name} ${lastname}`,
+                    body: `Su gestion ${id}, se ha cerrado:\n
                   ${data.description}}                    
                     `,
-                    });
-                  })
-                  .catch((e) => {
-                    swal.fire("Error", e.text, "error");
                   });
-              });
+                })
+                .catch((e) => {
+                  swal.fire("Error", e.text, "error");
+                });
             }}
           >
             <Image src={cerrar} alt="Cerrar Gestion" width={48} height={48} />
