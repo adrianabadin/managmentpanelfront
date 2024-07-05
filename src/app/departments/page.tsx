@@ -11,18 +11,32 @@ import { useGetUsersQuery } from "../ReduxGlobals/Features/apiSlice";
 import { useAppSelector } from "../ReduxGlobals/store";
 import Item from "./components/MenuItem";
 import Gc from "./components/Gc";
+import Programa from "./components/gc/Basico";
 
 export default function Departments() {
-  const [choice, setChoice] = useState<
-    "" | "gestion" | "cronicos" | "protesis" | "practicas" | "gc"
-  >("");
-  const { departments } = useAppSelector((state) => state.auth);
+  const { Departments } = useAppSelector((state) => state.auth);
+  const [choice, setChoice] = useState<string>("");
   return (
     <>
       <main className="grid grid-cols-12 bg-gray-200  min-h-screen  flex-col  ">
         <nav className="col-span-3  bg-gray-300 w-full flex flex-col">
-          <Item name="gestion" setChoice={setChoice} />
-          <Button
+          {Departments !== undefined
+            ? Departments?.map((item) => {
+                return (
+                  <Button
+                    key={item.id}
+                    variant="gradient"
+                    color="white"
+                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                    onClick={() => setChoice(item.name)}
+                  >
+                    {item.name}
+                  </Button>
+                );
+              })
+            : null}
+          {/*<Item name="gestion" setChoice={setChoice} />
+           <Button
             variant="gradient"
             color="white"
             className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
@@ -45,7 +59,7 @@ export default function Departments() {
             onClick={() => setChoice("practicas")}
           >
             Practicas
-          </Button>
+          </Button> */}
           <Button
             variant="gradient"
             color="white"
@@ -56,16 +70,10 @@ export default function Departments() {
           </Button>
         </nav>
         <div className="col-span-9  w-full items-center mx-auto  flex flex-col">
-          {choice === "gestion" ? (
-            <Gestion />
-          ) : choice === "practicas" ? (
-            <Practicas />
-          ) : choice === "cronicos" ? (
-            <Cronicos />
-          ) : choice === "protesis" ? (
-            <Protesis />
-          ) : choice === "gc" ? (
+          {choice === "gc" ? (
             <Gc />
+          ) : choice !== "" ? (
+            <Programa department={choice} />
           ) : null}
         </div>
       </main>
