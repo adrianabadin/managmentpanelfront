@@ -10,7 +10,7 @@ const initialState:AuthResponseType={
     username:"",
     id:"",
     isAdmin:false,
-    departments:[]
+    Departments:[]
 }
 
 export const authSlice=createSlice({
@@ -26,7 +26,7 @@ export const authSlice=createSlice({
             state.name=action.payload.name
             state.id=action.payload.id
             state.isAdmin=action.payload.isAdmin
-            state.departments=action.payload.departments
+            state.Departments=action.payload.Departments
         }),
         builder.addMatcher(apiSlice.endpoints.jwtLogin.matchFulfilled,(state,action:PayloadAction<AuthResponseType>)=>{
             state.lastname=action.payload.lastname
@@ -34,7 +34,7 @@ export const authSlice=createSlice({
             state.name=action.payload.name
             state.id=action.payload.id
             state.isAdmin=action.payload.isAdmin
-            state.departments=action.payload.departments
+            state.Departments=action.payload.Departments
 
         })
     }
