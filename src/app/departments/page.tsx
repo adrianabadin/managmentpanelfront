@@ -7,7 +7,10 @@ import Cronicos from "./components/Cronicos";
 import { Button } from "@material-tailwind/react";
 import AsignDepartment from "./config/components/AsignDepartment";
 import Protesis from "./components/Protesis";
-import { useGetUsersQuery } from "../ReduxGlobals/Features/apiSlice";
+import {
+  useGetDepartmentsQuery,
+  useGetUsersQuery,
+} from "../ReduxGlobals/Features/apiSlice";
 import { useAppSelector } from "../ReduxGlobals/store";
 import Item from "./components/MenuItem";
 import Gc from "./components/Gc";
@@ -16,25 +19,40 @@ import Programa from "./components/gc/Basico";
 export default function Departments() {
   const auth = useAppSelector((state) => state.auth);
   const [choice, setChoice] = useState<string>("");
-  const { Departments } = auth;
+  const { Departments, isAdmin } = auth;
+  const { data } = useGetDepartmentsQuery(undefined);
   console.log(auth, "ASignados");
   return (
     <>
       <main className="grid grid-cols-12 bg-gray-200  min-h-screen  flex-col  ">
         <nav className="col-span-3  bg-gray-300 w-full flex flex-col">
-          {Departments?.map((item) => {
-            return (
-              <Button
-                key={item.id}
-                variant="gradient"
-                color="white"
-                className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
-                onClick={() => setChoice(item.name)}
-              >
-                {item.name}
-              </Button>
-            );
-          })}
+          {isAdmin === true
+            ? data?.map((item) => {
+                return (
+                  <Button
+                    key={item.id}
+                    variant="gradient"
+                    color="white"
+                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                    onClick={() => setChoice(item.name)}
+                  >
+                    {item.name}
+                  </Button>
+                );
+              })
+            : Departments?.map((item) => {
+                return (
+                  <Button
+                    key={item.id}
+                    variant="gradient"
+                    color="white"
+                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                    onClick={() => setChoice(item.name)}
+                  >
+                    {item.name}
+                  </Button>
+                );
+              })}
           {/*<Item name="gestion" setChoice={setChoice} />
            <Button
             variant="gradient"
