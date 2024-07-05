@@ -679,7 +679,7 @@ export const apiSlice=createApi({
                 url:"/gc/intervention",
                 method:"post",
                 body
-            }),invalidatesTags:[{type:"interventions"}]
+            }),invalidatesTags:[{type:"interventions"},{type:"issues"} ]
         }),
         getInterventions:builder.query<GetIssueWithInterventions,string>({
             query:(id)=>({
@@ -698,7 +698,7 @@ export const apiSlice=createApi({
                 url:"/gc/issue",
                 method:"delete",
                 body:data
-            })
+            }),invalidatesTags:[{type:"issues"}]
         })
     })
 
