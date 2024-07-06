@@ -57,7 +57,7 @@ function Gc() {
   }
   console.log(error, "data");
   return (
-    <section className="w-full flex justify-center">
+    <section className="w-full flex flex-col justify-center">
       <Card className="w-full mx-4 mt-4">
         <CardBody>
           <Typography variant="h2" color="blue" className="w-full text-center">
