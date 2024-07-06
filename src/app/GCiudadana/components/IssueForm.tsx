@@ -229,6 +229,38 @@ export function IssueForm() {
         </div>
         <div className="flex justify-center content-between flex-col col-span-2">
           <Controller
+            name="kind"
+            control={control}
+            render={({ field }) => (
+              <Suspense>
+                <Select
+                  label="Tipo de solicitud"
+                  placeholder={null}
+                  className="col-span-2 col-start-1 text-black"
+                  containerProps={{ className: "mt-10 mb-10" }}
+                  {...field}
+                  onChange={(data) => {
+                    data !== undefined || data !== null || data >= 0
+                      ? setValue("kind", data !== undefined ? data : "")
+                      : setValue("kind", "");
+                    //field.onChange(data)
+                  }}
+                >
+                  {Array.isArray(kois)
+                    ? kois.map((item) => (
+                        <Option key={item.id} value={item.name}>
+                          {item.name}
+                        </Option>
+                      ))
+                    : null}
+                </Select>
+                <p className="text-red-500 font-bold text-center">
+                  {errors.kind !== undefined ? errors.kind.message : " "}
+                </p>
+              </Suspense>
+            )}
+          ></Controller>
+          <Controller
             name="state"
             control={control}
             render={({ field }) => (
@@ -287,38 +319,7 @@ export function IssueForm() {
               </Suspense>
             )}
           ></Controller> */}
-          <Controller
-            name="kind"
-            control={control}
-            render={({ field }) => (
-              <Suspense>
-                <Select
-                  label="Tipo de solicitud"
-                  placeholder={null}
-                  className="col-span-2 col-start-1 text-black"
-                  containerProps={{ className: "mt-10 mb-10" }}
-                  {...field}
-                  onChange={(data) => {
-                    data !== undefined || data !== null || data >= 0
-                      ? setValue("kind", data !== undefined ? data : "")
-                      : setValue("kind", "");
-                    //field.onChange(data)
-                  }}
-                >
-                  {Array.isArray(kois)
-                    ? kois.map((item) => (
-                        <Option key={item.id} value={item.name}>
-                          {item.name}
-                        </Option>
-                      ))
-                    : null}
-                </Select>
-                <p className="text-red-500 font-bold text-center">
-                  {errors.kind !== undefined ? errors.kind.message : " "}
-                </p>
-              </Suspense>
-            )}
-          ></Controller>
+
           <FileButton
             text="Subir documentacion (Formato JPG)"
             handleClick={() => setOpen((prev) => !prev)}
