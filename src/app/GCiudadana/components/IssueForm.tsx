@@ -372,7 +372,7 @@ export function IssueForm() {
               );
             }
           }}
-          disabled={Object.keys(errors).length !== 0 ? true : undefined}
+          //disabled={Object.keys(errors).length !== 0 ? true : undefined}
         >
           Iniciar Tramite
         </Button>
