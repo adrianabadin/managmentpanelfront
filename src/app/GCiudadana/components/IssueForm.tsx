@@ -342,6 +342,7 @@ export function IssueForm() {
           className="w-fit p-4 col-span-6 self-center mx-auto"
           onClick={() => {
             const data = getValues();
+            console.log(data, "datos");
             const result = userIssue.safeParse(data);
 
             if (result.success) {
