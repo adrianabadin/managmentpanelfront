@@ -262,7 +262,7 @@ export function IssueForm() {
               </>
             )}
           ></Controller>
-          <Controller
+          {/* <Controller
             name="healthInsurance"
             control={control}
             render={({ field }) => (
@@ -279,7 +279,7 @@ export function IssueForm() {
                 </Select>
               </Suspense>
             )}
-          ></Controller>
+          ></Controller> */}
           <Controller
             name="kind"
             control={control}
