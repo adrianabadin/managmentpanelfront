@@ -260,7 +260,7 @@ export function IssueForm() {
             )}
           ></Controller>
 
-          {/* <Controller
+          <Controller
             name="kind"
             control={control}
             render={({ field }) => (
@@ -291,7 +291,7 @@ export function IssueForm() {
                 </p>
               </Suspense>
             )}
-          ></Controller> */}
+          ></Controller>
           <FileButton
             text="Subir documentacion (Formato JPG)"
             handleClick={() => setOpen((prev) => !prev)}

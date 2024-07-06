@@ -696,7 +696,7 @@ export const apiSlice=createApi({
             query:(id)=>({
                 url:`/gc/interventions?id=${id}`,
                 method:"get"
-            })
+            }),providesTags:[{type:"interventions"},{type:"issues"}]
         }),
         getFiles:builder.query<{data:string},string>({
             query:(id)=>({
