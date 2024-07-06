@@ -300,8 +300,8 @@ export function IssueForm() {
                   {...field}
                   onChange={(data) => {
                     data !== undefined || data !== null || data >= 0
-                      ? setValue("state", data !== undefined ? data : "")
-                      : setValue("state", "");
+                      ? setValue("kind", data !== undefined ? data : "")
+                      : setValue("kind", "");
                     //field.onChange(data)
                   }}
                 >
