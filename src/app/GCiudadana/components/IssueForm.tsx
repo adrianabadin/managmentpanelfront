@@ -262,6 +262,14 @@ export function IssueForm() {
               </>
             )}
           ></Controller>
+          <Input
+            {...register("healthInsurance")}
+            label="Obra Social"
+            placeholder="Obra Social"
+            variant="outlined"
+            containerProps={{ className: "w-full" }}
+            className=" w-full "
+          />
           {/* <Controller
             name="healthInsurance"
             control={control}
@@ -364,7 +372,7 @@ export function IssueForm() {
               );
             }
           }}
-          // disabled={Object.keys(errors).length !== 0 ? true : undefined}
+          disabled={Object.keys(errors).length !== 0 ? true : undefined}
         >
           Iniciar Tramite
         </Button>
