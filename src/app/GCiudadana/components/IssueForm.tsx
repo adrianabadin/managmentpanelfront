@@ -85,6 +85,9 @@ const userIssue = z
         { message: "Deben ser 10 digitos o ningun valor" }
       )
       .optional(),
+    healthInsurance: z
+      .string({ invalid_type_error: "Debe ser una cadena" })
+      .optional(),
     state: z
       .string({ required_error: "El campo es obligatorio" })
       .min(3, { message: "El partido debe contener al menos 3 caracteres" }),
@@ -259,7 +262,23 @@ export function IssueForm() {
               </>
             )}
           ></Controller>
-
+          <Controller
+            name="healthInsurance"
+            control={control}
+            render={({ field }) => (
+              <Suspense>
+                <Select placeholder={null}>
+                  <Option value="IOMA">IOMA</Option>
+                  <Option value="PAMI">PAMI</Option>
+                  <Option value="OSDE">OSDE</Option>
+                  <Option value="SWISS MEDICAL">SWISS MEDICAL</Option>
+                  <Option value="OSPRERA">OSPRERA</Option>
+                  <Option value="OSECAC">OSECAC</Option>
+                  <Option value="OTRO">OTRO</Option>
+                </Select>
+              </Suspense>
+            )}
+          />
           <Controller
             name="kind"
             control={control}
@@ -317,7 +336,6 @@ export function IssueForm() {
             const data = getValues();
             const result = userIssue.safeParse(data);
             if (result.success) {
-              console.log(data);
               createIssue(data)
                 .unwrap()
                 .then((response) => {
