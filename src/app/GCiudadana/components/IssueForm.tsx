@@ -279,7 +279,7 @@ export function IssueForm() {
                 </Select>
               </Suspense>
             )}
-          />
+          ></Controller>
           <Controller
             name="kind"
             control={control}
