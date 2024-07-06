@@ -69,15 +69,14 @@ const userIssue = z
       .refine(
         (value) => {
           if (value === undefined || value === "") return true;
-          console.log(value);
           if (value.length < 10) return false;
           let bool: boolean = true;
           value.split("").forEach((character) => {
-            console.log(
-              character,
-              parseInt(character),
-              Number.isNaN(parseInt(character))
-            );
+            // console.log(
+            //   character,
+            //   parseInt(character),
+            //   Number.isNaN(parseInt(character))
+            // );
             if (Number.isNaN(parseInt(character))) bool = false;
           });
           return bool;
@@ -159,7 +158,7 @@ export function IssueForm() {
       </Typography>
       <form
         className="grid grid-cols-6 gap-8 w-full bg-white  my-4 grid-flow-dense"
-        onSubmit={handleSubmit((data) => console.log(data))}
+        //onSubmit={handleSubmit((data) => console.log(data))}
       >
         <div className="flex flex-col col-span-3 mt-6">
           <Input
