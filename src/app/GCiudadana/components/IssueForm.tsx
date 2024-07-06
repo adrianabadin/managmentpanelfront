@@ -267,7 +267,8 @@ export function IssueForm() {
             control={control}
             render={({ field }) => (
               <Suspense>
-                <Select placeholder={null}>
+                <Select placeholder={null} defaultValue={"Sin obra social"}>
+                  <Option value="Sin obra social">Sin Obra social</Option>
                   <Option value="IOMA">IOMA</Option>
                   <Option value="PAMI">PAMI</Option>
                   <Option value="OSDE">OSDE</Option>
@@ -335,6 +336,7 @@ export function IssueForm() {
           onClick={() => {
             const data = getValues();
             const result = userIssue.safeParse(data);
+
             if (result.success) {
               createIssue(data)
                 .unwrap()
@@ -349,7 +351,8 @@ export function IssueForm() {
                   );
                 })
                 .catch((e) => swal.fire("Error", e.text, "error"));
-            } else
+            } else {
+              console.log(result.error);
               swal.fire(
                 "Error",
                 `Los campos ${result.error.issues.map((item) =>
@@ -359,8 +362,9 @@ export function IssueForm() {
                 )}`,
                 "error"
               );
+            }
           }}
-          disabled={Object.keys(errors).length !== 0 ? true : undefined}
+          // disabled={Object.keys(errors).length !== 0 ? true : undefined}
         >
           Iniciar Tramite
         </Button>
