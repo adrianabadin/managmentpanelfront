@@ -646,11 +646,22 @@ export const apiSlice=createApi({
             query:(id)=>{
                 let url:string = "/gc/issue"
                 if (id !==undefined) url+="?id="+id
+                
                 return {
                 url,
                 method:"get"
             }},providesTags:[{type:"issues"}]
         }),
+        
+        getIssuesByState:builder.query<GetIssues[]|GetIssues,string>({
+            query:(state)=>{
+                let url:string = "/gc/issue?state="+state
+                return {
+                url,
+                method:"get"
+            }},providesTags:[{type:"issues"}]
+        }),
+
         addPhone:builder.mutation<{id:string},{id:string,phone:string}>({
             query:(body)=>{
                 return {
@@ -753,5 +764,5 @@ export const {
     useDropAdminMutation,
     useCreateDocumentMutation,
     useAddServiceMutation,
-    useJwtLoginQuery
+    useJwtLoginQuery,useGetIssuesByStateQuery
 }=apiSlice
