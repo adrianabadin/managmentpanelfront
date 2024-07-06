@@ -298,7 +298,7 @@ export function IssueForm() {
             label="Obra Social"
             placeholder="Obra Social"
             variant="outlined"
-            containerProps={{ className: "w-full" }}
+            containerProps={{ className: "w-full mt-10 mb-10" }}
             className=" w-full "
           />
           {/* <Controller
