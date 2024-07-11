@@ -119,7 +119,7 @@ export type UserIssue = z.infer<typeof userIssue>;
 export type FileType = z.infer<typeof FilesDescriptor>;
 export function IssueForm() {
   const [open, setOpen] = useState(false);
-  //const { Departments, isAdmin } = useAppSelector((state) => state.auth);
+  const { Departments, isAdmin } = useAppSelector((state) => state.auth);
   const {
     register,
     setValue,
@@ -134,11 +134,11 @@ export function IssueForm() {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
-  // if (
-  //   (Departments === undefined || Departments.length === 0) &&
-  //   isAdmin === false
-  // )
-  return null;
+  if (
+    (Departments === undefined || Departments.length === 0) &&
+    isAdmin === false
+  )
+    return <div>Not Authorized</div>;
   return isFetching || koisFetch ? (
     <Spinner />
   ) : (
