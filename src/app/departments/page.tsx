@@ -106,7 +106,10 @@ export default function Departments() {
             Practicas
           </Button> */}
           {(Departments !== undefined && Departments?.length > 0) || isAdmin ? (
-            <Link href={"/GCiudadana"}>
+            <Link
+              href={"/GCiudadana"}
+              className="flex flex-col justify-center w-full"
+            >
               <Button
                 variant="gradient"
                 color="white"
