@@ -1,11 +1,13 @@
 "use client";
+import { useAppSelector } from "../ReduxGlobals/store";
 import IssueForm from "./components/IssueForm";
 
-export function Page() {
+export default function GestionIngreso() {
+  const auth = useAppSelector((state) => state.auth);
+
   return (
     <>
-      <IssueForm />
+      <IssueForm auth={auth} />
     </>
   );
 }
-export default Page;

@@ -25,6 +25,7 @@ import {
   useGetStatesQuery,
 } from "@/app/ReduxGlobals/Features/apiSlice";
 import { useAppSelector } from "@/app/ReduxGlobals/store";
+import { AuthResponseType } from "@/app/ReduxGlobals/Features/authSlice";
 
 export const FilesDescriptor = z.object({
   driveId: z.string({ required_error: "El campo es obligatorio" }),
@@ -117,7 +118,7 @@ const userIssue = z
   );
 export type UserIssue = z.infer<typeof userIssue>;
 export type FileType = z.infer<typeof FilesDescriptor>;
-function IssueForm() {
+function IssueForm({ auth }: { auth: AuthResponseType }) {
   const [open, setOpen] = useState(false);
   //const auth = useAppSelector((state) => state.auth);
   const {
@@ -134,11 +135,11 @@ function IssueForm() {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
-  // if (
-  //   (Departments === undefined || Departments.length === 0) &&
-  //   isAdmin === false
-  // )
-  //   return <div>Not Authorized</div>;
+  if (
+    (auth.Departments === undefined || auth.Departments.length === 0) &&
+    auth.isAdmin === false
+  )
+    return <div>Not Authorized</div>;
   return isFetching || koisFetch ? (
     <Spinner />
   ) : (
