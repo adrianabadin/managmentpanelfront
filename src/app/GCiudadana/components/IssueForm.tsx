@@ -139,7 +139,11 @@ function IssueForm({ auth }: { auth: AuthResponseType }) {
     (auth.Departments === undefined || auth.Departments.length === 0) &&
     auth.isAdmin === false
   )
-    return <div>Not Authorized</div>;
+    return (
+      <div className="w-full flex flex-col justify-center h-96 bg-blue-gray-100 text-red-700 text-center font-bold">
+        Debes ingresar para ver esta pagina
+      </div>
+    );
   return isFetching || koisFetch ? (
     <Spinner />
   ) : (
