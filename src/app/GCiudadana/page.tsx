@@ -1,4 +1,4 @@
-import { IssueForm } from "./components/IssueForm";
+import IssueForm from "./components/IssueForm";
 
 export function Page() {
   return (
