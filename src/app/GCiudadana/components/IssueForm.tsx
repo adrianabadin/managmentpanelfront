@@ -134,11 +134,11 @@ export function IssueForm() {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
-  if (
-    (Departments === undefined || Departments.length === 0) &&
-    isAdmin === false
-  )
-    return <div>Not Authorized</div>;
+  // if (
+  //   (Departments === undefined || Departments.length === 0) &&
+  //   isAdmin === false
+  // )
+  //   return <div>Not Authorized</div>;
   return isFetching || koisFetch ? (
     <Spinner />
   ) : (
