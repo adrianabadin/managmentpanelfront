@@ -134,9 +134,14 @@ export function IssueForm() {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
+  if (
+    (Departments === undefined || Departments.length === 0) &&
+    isAdmin === false
+  )
+    return null;
   return isFetching || koisFetch ? (
     <Spinner />
-  ) : (Departments !== undefined && Departments.length > 0) || isAdmin ? (
+  ) : (
     <main className="w-11/12 bg-white flex flex-col justify-center mx-auto p-8">
       <Typography variant="h1" color="blue" className="text-center">
         Gestion Ciudadana
@@ -388,5 +393,5 @@ export function IssueForm() {
         setValue={setValue}
       />
     </main>
-  ) : null;
+  );
 }
