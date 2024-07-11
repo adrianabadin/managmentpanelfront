@@ -15,6 +15,7 @@ import { useAppSelector } from "../ReduxGlobals/store";
 import Item from "./components/MenuItem";
 import Gc from "./components/Gc";
 import Programa from "./components/gc/Basico";
+import Link from "next/link";
 
 export default function Departments() {
   const auth = useAppSelector((state) => state.auth);
@@ -28,30 +29,56 @@ export default function Departments() {
         <nav className="col-span-3  bg-gray-300 w-full flex flex-col">
           {isAdmin === true
             ? data?.map((item) => {
-                return (
-                  <Button
-                    key={item.id}
-                    variant="gradient"
-                    color="white"
-                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
-                    onClick={() => setChoice(item.name)}
-                  >
-                    {item.name}
-                  </Button>
-                );
+                if (item.name === "Gestion Ciudadana") {
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="gradient"
+                      color="white"
+                      className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                      onClick={() => setChoice("gc")}
+                    >
+                      {item.name}
+                    </Button>
+                  );
+                } else
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="gradient"
+                      color="white"
+                      className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                      onClick={() => setChoice(item.name)}
+                    >
+                      {item.name}
+                    </Button>
+                  );
               })
             : Departments?.map((item) => {
-                return (
-                  <Button
-                    key={item.id}
-                    variant="gradient"
-                    color="white"
-                    className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
-                    onClick={() => setChoice(item.name)}
-                  >
-                    {item.name}
-                  </Button>
-                );
+                if (item.name === "Gestion Ciudadana") {
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="gradient"
+                      color="white"
+                      className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                      onClick={() => setChoice("gc")}
+                    >
+                      {item.name}
+                    </Button>
+                  );
+                } else
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="gradient"
+                      color="white"
+                      className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
+                      onClick={() => setChoice(item.name)}
+                    >
+                      {item.name}
+                    </Button>
+                  );
               })}
           {/*<Item name="gestion" setChoice={setChoice} />
            <Button
@@ -78,14 +105,18 @@ export default function Departments() {
           >
             Practicas
           </Button> */}
-          <Button
-            variant="gradient"
-            color="white"
-            className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1 "
-            onClick={() => setChoice("gc")}
-          >
-            Gestion Ciudadana
-          </Button>
+          {(Departments !== undefined && Departments?.length > 0) || isAdmin ? (
+            <Link href={"/GCiudadana"}>
+              <Button
+                variant="gradient"
+                color="white"
+                className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1 "
+                // onClick={() => setChoice("gc")}
+              >
+                Gestion Ciudadana Ingreso
+              </Button>
+            </Link>
+          ) : null}
         </nav>
         <div className="col-span-9  w-full items-center mx-auto  flex flex-col">
           {choice === "gc" ? (
