@@ -24,6 +24,7 @@ import {
   useGetKOIsQuery,
   useGetStatesQuery,
 } from "@/app/ReduxGlobals/Features/apiSlice";
+import { useAppSelector } from "@/app/ReduxGlobals/store";
 
 export const FilesDescriptor = z.object({
   driveId: z.string({ required_error: "El campo es obligatorio" }),
@@ -118,6 +119,7 @@ export type UserIssue = z.infer<typeof userIssue>;
 export type FileType = z.infer<typeof FilesDescriptor>;
 export function IssueForm() {
   const [open, setOpen] = useState(false);
+  const { Departments, isAdmin } = useAppSelector((state) => state.auth);
   const {
     register,
     setValue,
@@ -134,7 +136,7 @@ export function IssueForm() {
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
   return isFetching || koisFetch ? (
     <Spinner />
-  ) : (
+  ) : (Departments !== undefined && Departments.length > 0) || isAdmin ? (
     <main className="w-11/12 bg-white flex flex-col justify-center mx-auto p-8">
       <Typography variant="h1" color="blue" className="text-center">
         Gestion Ciudadana
@@ -386,5 +388,5 @@ export function IssueForm() {
         setValue={setValue}
       />
     </main>
-  );
+  ) : null;
 }
