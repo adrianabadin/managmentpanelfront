@@ -1,3 +1,4 @@
+"use client";
 import IssueForm from "./components/IssueForm";
 
 export function Page() {
@@ -7,4 +8,4 @@ export function Page() {
     </>
   );
 }
-export default IssueForm;
+export default Page;
