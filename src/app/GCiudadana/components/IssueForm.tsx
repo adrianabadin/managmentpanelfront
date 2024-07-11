@@ -119,7 +119,7 @@ export type UserIssue = z.infer<typeof userIssue>;
 export type FileType = z.infer<typeof FilesDescriptor>;
 function IssueForm() {
   const [open, setOpen] = useState(false);
-  const auth = useAppSelector((state) => state.auth);
+  //const auth = useAppSelector((state) => state.auth);
   const {
     register,
     setValue,
