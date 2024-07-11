@@ -117,7 +117,7 @@ const userIssue = z
   );
 export type UserIssue = z.infer<typeof userIssue>;
 export type FileType = z.infer<typeof FilesDescriptor>;
-export function IssueForm() {
+function IssueForm() {
   const [open, setOpen] = useState(false);
   const auth = useAppSelector((state) => state.auth);
   const {
@@ -395,3 +395,4 @@ export function IssueForm() {
     </main>
   );
 }
+export default IssueForm;
