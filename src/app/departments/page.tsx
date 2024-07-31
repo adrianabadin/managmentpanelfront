@@ -29,7 +29,10 @@ export default function Departments() {
         <nav className="col-span-3  bg-gray-300 w-full flex flex-col">
           {isAdmin === true
             ? data?.map((item) => {
-                if (item.name === "Gestion Ciudadana") {
+                if (
+                  item.name === "Gestion Ciudadana" ||
+                  item.name === "Gestion Ciudadana "
+                ) {
                   return (
                     <Button
                       key={item.id}
@@ -38,7 +41,7 @@ export default function Departments() {
                       className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
                       onClick={() => setChoice("gc")}
                     >
-                      {item.name}
+                      {item.name.trim()}
                     </Button>
                   );
                 } else
@@ -55,7 +58,10 @@ export default function Departments() {
                   );
               })
             : Departments?.map((item) => {
-                if (item.name === "Gestion Ciudadana") {
+                if (
+                  item.name === "Gestion Ciudadana" ||
+                  item.name === "Gestion Ciudadana "
+                ) {
                   return (
                     <Button
                       key={item.id}
@@ -64,7 +70,7 @@ export default function Departments() {
                       className="m-2 justify-center px-2  hover:bg-blue-200 hover:text-white hover:outline-dashed hover:outline-1"
                       onClick={() => setChoice("gc")}
                     >
-                      {item.name}
+                      {item.name.trim()}
                     </Button>
                   );
                 } else
