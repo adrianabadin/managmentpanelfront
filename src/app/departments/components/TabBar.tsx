@@ -25,11 +25,13 @@ export function TabBar({
   return (
     <Tabs value="tasks" id="menu" className="w-full bg-gray-100 text-blue-500">
       <TabsHeader
+        placeholder={""}
         className="w-fit bg-white text-blue-500"
         indicatorProps={{ className: "bg-blue-50 font-bold text-white " }}
       >
         {data.map((item) => (
           <Tab
+            placeholder={""}
             key={item.value}
             value={item.value}
             className="bg-white   text-blue-600 active:bg-blue-200  active:text-white"

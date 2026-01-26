@@ -6,15 +6,7 @@ import close from "@/icons/close.svg";
 import upload from "@/icons/UPLOAD.svg";
 import addPhone from "@/icons/addPhone.svg";
 import history from "@/icons/history.svg";
-import { GetIssues } from "@/app/ReduxGlobals/Features/apiSlice";
-import {
-  Dialog,
-  DialogHeader,
-  Typography,
-  DialogBody,
-  Button,
-  DialogFooter,
-} from "@material-tailwind/react";
+import { Spinner } from "@material-tailwind/react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { AddMail } from "./AddMail";
 import { AddPhone } from "./AddPhone";
@@ -22,21 +14,41 @@ import { DocumentationView } from "./DocumentationView";
 import { IssueIntervention } from "./IssueIntervention";
 import Image from "next/image";
 import InterventionHistory from "./InterventionHistory";
+import {
+  apiSlice,
+  useGetIssuesQuery,
+} from "../../../ReduxGlobals/Features/apiSlice";
+import CustomTypography from "../CustomTypography";
+import Dialog, {
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+} from "../CustomDialog";
+import Button from "../CustomButton";
+
+import { GetIssues } from "../../../ReduxGlobals/Features/apiSlice";
+import { DerivationView } from "./DerivationView";
+
 export function IssueView({
   open,
   setOpen,
-  issue,
+  issueId,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  issue: GetIssues;
+  issueId: string;
 }) {
+  const { data, isFetching, isSuccess } = useGetIssuesQuery({ id: issueId });
+  const issue = data as GetIssues;
   const [addPhoneOpen, setAddPhoneOpen] = useState<boolean>(false);
   const [addMailOpen, setAddMailOpen] = useState<boolean>(false);
   const [interventionHistory, setOpenHistory] = useState<boolean>(false);
   const [openIntervention, setIssueIntervencionOpen] = useState<boolean>(false);
   const [openDoc, setOpenDoc] = useState<boolean>(false);
-  return (
+  const [derivarOpen, setDerivarOpen] = useState<boolean>(false);
+  return isFetching ? (
+    <Spinner />
+  ) : isSuccess && issue.state !== undefined ? (
     <Dialog
       open={open}
       handler={() => setOpen((prev) => !prev)}
@@ -45,28 +57,28 @@ export function IssueView({
     >
       <DialogHeader title="Problema del ciudadano">
         <div className="flex justify-between w-full align-middle items-center">
-          <Typography variant="h3" color="blue">
+          <CustomTypography variant="h3" color="blue">
             Problema del ciudadano
-          </Typography>
-          <Typography
+          </CustomTypography>
+          <CustomTypography
             variant="h5"
             color="white"
             className="bg-pink-400 rounded-2xl p-1 px-3"
           >
-            {`${issue.state.state}/${issue.kind.name}`}
-          </Typography>
+            {`${issue.state}/${issue.kind}`}
+          </CustomTypography>
         </div>
       </DialogHeader>
       <DialogBody className="grid grid-cols-10 gap-6 mt-4">
         <div className="flex flex-row align-middle items-center col-span-3 ">
-          <Typography
+          <CustomTypography
             className="mr-2"
             variant="h5"
             color="blue"
-          >{`Nombre: `}</Typography>
-          <Typography variant="paragraph" color="blue-gray">
+          >{`Nombre: `}</CustomTypography>
+          <CustomTypography variant="paragraph" color="blue-gray">
             {`${issue.name.toUpperCase()} ${issue.lastName.toUpperCase()}`}
-          </Typography>
+          </CustomTypography>
         </div>
         <div className="flex flex-row align-middle items-center col-span-2 ">
           <Button
@@ -82,9 +94,9 @@ export function IssueView({
               height={24}
             />
           </Button>
-          <Typography variant="paragraph" color="blue-gray">
+          <CustomTypography variant="paragraph" color="blue-gray">
             {`${issue.phone}\n${issue.phone2}`}
-          </Typography>
+          </CustomTypography>
         </div>
         <div className="flex flex-row align-middle items-center col-span-3 ">
           <Button
@@ -96,32 +108,32 @@ export function IssueView({
             <Image src={email} alt="Agregar telefono" width={24} height={24} />
           </Button>
 
-          <Typography variant="paragraph" color="blue-gray">
+          <CustomTypography variant="paragraph" color="blue-gray">
             {`${issue.email}\n${issue.email2}`}
-          </Typography>
+          </CustomTypography>
         </div>
 
         <div className="flex flex-row align-middle items-center col-span-2 ">
-          <Typography
+          <CustomTypography
             variant="h5"
             color="blue"
             className="mr-2"
-          >{`DNI: `}</Typography>
-          <Typography variant="paragraph" color="blue-gray">
+          >{`DNI: `}</CustomTypography>
+          <CustomTypography variant="paragraph" color="blue-gray">
             {`${issue.socialSecurityNumber}`}
-          </Typography>
+          </CustomTypography>
         </div>
 
-        <Typography variant="h5" color="blue" className="col-span-10">
+        <CustomTypography variant="h5" color="blue" className="col-span-10">
           Descripcion:
-        </Typography>
-        <Typography
+        </CustomTypography>
+        <CustomTypography
           variant="paragraph"
           color="blue-gray"
           className="text-justify w-full min-h-52 col-span-10"
         >
           {issue.description}
-        </Typography>
+        </CustomTypography>
       </DialogBody>
       <DialogFooter className="w-full  flex justify-around align-middle items-center">
         <Button
@@ -169,7 +181,7 @@ export function IssueView({
           variant="gradient"
           color="blue"
           className="w-28 text-center p-0 py-3 "
-          disabled
+          onClick={() => setDerivarOpen(true)}
         >
           Derivar
         </Button>
@@ -195,6 +207,11 @@ export function IssueView({
         isOpen={interventionHistory}
         setOpen={setOpenHistory}
       />
+      <DerivationView
+        issueId={issue.id}
+        state={derivarOpen}
+        setState={setDerivarOpen}
+      ></DerivationView>
     </Dialog>
-  );
+  ) : null;
 }

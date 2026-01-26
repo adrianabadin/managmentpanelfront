@@ -8,6 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   Input,
+  Spinner,
   Typography,
 } from "@material-tailwind/react";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -15,7 +16,8 @@ import { useForm } from "react-hook-form";
 //import { LoginSchema, LoginType } from "../ReduxGlobals/Features/apiSlice";
 import { error } from "console";
 import { z } from "zod";
-import { useLoginMutation } from "../ReduxGlobals/Features/apiSlice";
+import { apiSlice, useLoginMutation } from "../ReduxGlobals/Features/apiSlice";
+import Link from "next/link";
 const LoginSchema = z.object({
   username: z.string().email({ message: "Debes ingresar un email valido" }),
   password: z
@@ -30,12 +32,22 @@ export function LoginModal({
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
+  const [
+    sendTokenTrigger,
+    {
+      isError: isSendTokenError,
+      error: sendTokenError,
+      isFetching: isSendTokenFetching,
+    },
+  ] = apiSlice.endpoints.sendToken.useLazyQuery();
+  if (isSendTokenError) console.log(sendTokenError);
   const [login, { isLoading }] = useLoginMutation();
   const {
     register,
     reset,
     handleSubmit,
     setError,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginType>({
     resolver: zodResolver(LoginSchema),
@@ -74,8 +86,12 @@ export function LoginModal({
               </Button>
             </div>
           </DialogHeader>
-          <DialogBody className="w-2/3 mx-auto justify-around min-h-40 flex flex-col">
+          <DialogBody
+            className="w-2/3 mx-auto justify-around min-h-40 flex flex-col"
+            placeholder={""}
+          >
             <Input
+              crossOrigin={""}
               {...register("username")}
               variant="outlined"
               label="e-Mail"
@@ -86,6 +102,7 @@ export function LoginModal({
               <p className="text-red-500">{errors.username?.message}</p>
             )}
             <Input
+              crossOrigin={""}
               {...register("password")}
               variant="outlined"
               label="Contraseña"
@@ -97,8 +114,9 @@ export function LoginModal({
               <p className="text-red-500">{errors.password?.message}</p>
             )}
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter placeholder={""} className="flex flex-col items-center">
             <Button
+              placeholder={""}
               variant="gradient"
               type="submit"
               color="blue"
@@ -106,6 +124,26 @@ export function LoginModal({
             >
               {isLoading ? "Ingresando..." : "Ingresar"}
             </Button>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                const { username } = getValues();
+                if (username !== undefined && username !== null) {
+                  sendTokenTrigger({ username });
+                }
+              }}
+            >
+              {isSendTokenFetching ? <Spinner /> : "Recuperar Contraseña"}
+            </a>
+
+            {isSendTokenError ? (
+              <p className="text-red-500 text-center">
+                Error al intentar modificar contraseña
+              </p>
+            ) : (
+              ""
+            )}
           </DialogFooter>
         </form>
       </Dialog>

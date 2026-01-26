@@ -12,7 +12,7 @@ import Card, {
 } from "@material-tailwind/react/components/Card";
 
 export default function AdminConfig() {
-  const { data, isFetching, isSuccess } = useGetUsersQuery(undefined);
+  const { data, isFetching, isSuccess } = useGetUsersQuery({});
 
   return (
     <>

@@ -7,6 +7,7 @@ import { CloseTaskType, TaskType } from "@/app/components/Agenda"
 import { AddKOI } from "@/app/departments/config/components/AddKindOfIssue"
 import { FilesDescriptor, UserIssue } from "@/app/GCiudadana/components/IssueForm"
 import { url } from "inspector"
+import { stat } from "fs"
 
 
 const dotenvSchema = z.object({
@@ -235,9 +236,28 @@ export const FodaUpdateResponse = z.object({
     demographyId:z.string().uuid().nullable()
 
 })
+export const derivationSchema=z.object({
+  body:z.object({
+    issueId:z.string({required_error:"Debes enviar un issueId"}),
+    userIssue:z.string({required_error:"Debes enviar un userIssue"}).optional(),
+    departmentId:z.string({required_error:"Debes enviar un departmentId"}).optional()
+  }).refine((data)=>{
+    if (data.userIssue === undefined && data.departmentId === undefined) return false
+  },{message:"Debes enviar un userIssue o un departmentId",path:["body"]})
+})
+export const changePasswordSchema=z.object({
+    
+        username:z.string({invalid_type_error:"Debes enviar una cadena",description:"Debes enviar una cadena",required_error:"El nombre de usuario es obligatorio"}).email({message:"Debes enviar un mail valido"}),
+        password:z.string({invalid_type_error:"Debes enviar una cadena",required_error:"La nueva clave es obligatoria"}).min(3,"La clave debe tener al menos 6 caracteres"),
+        token:z.string({invalid_type_error:"Debes enviar una cadena",required_error:"El token es obligatorio"})
+    
+})
+
 /**
  * TYPES
  */ 
+export type ChangePasswordType =z.infer<typeof changePasswordSchema>
+export type DerivationType=z.infer<typeof derivationSchema>["body"]
 export type Intervention=z.infer<typeof interventionSchema>
 export type DeleteMember = z.infer<typeof deleteSchema>
 export type FodaUpdate =z.infer<typeof FodaUpdateResponse>
@@ -266,6 +286,7 @@ export type GetIssues ={
     files: Array<{driveId:string,name:string,id:string,description:string}>
     kind: {name:string}
     state:{state:string}
+    department:string
 }
 /**
  * API
@@ -303,12 +324,36 @@ export const apiSlice=createApi({
                 method:"get"
             })
         }),
-        getUsers:builder.query<AuthResponseType[],undefined>({
-            query:()=>({
-                url:"/users/getUsers",
-                method:"get"
-            }),providesTags: [{type:"users"}]
-        }),
+getUsers: builder.query<AuthResponseType[], { id?: string }>({
+  query: ({ id }) => ({
+    url: `/users/getUsers${id ? `/${id}` : ""}`,
+    method: "get"
+  }),
+  providesTags: (result, error, { id }) => {
+    // Usuario individual: solo su tag
+    if (id) {
+      return [{ type: "users", id }];
+    }
+    
+    // Lista completa: SOLO el tag LIST
+    // ❌ NO generes tags individuales aquí
+    return [{ type: "users", id: "LIST" }];
+  }
+}),
+sendToken:builder.query<any,{username:string}>({
+    query:(username)=>({
+            url:"/users/sendresettoken/"+username.username,
+            method: "get"
+    })
+}),
+changePassword:builder.mutation<AuthResponseType,ChangePasswordType>({
+    query:(body)=>({
+        url:"/users/resetpassword",
+        method:"post",
+        body
+    })
+})
+,
         setAdmin:builder.mutation<AuthResponseType,string>({
             query:(id)=>({
                 url:  `/users/setadmin/${id}`,
@@ -330,7 +375,7 @@ export const apiSlice=createApi({
         }),
         getDepartments:builder.query<DepartmentResponseType[],{username?:string}|undefined>({
             query:(query)=>({
-                url:`/departments/getdepartments${(query !== undefined)? "?username="+query.username:""}`,
+                url:`/departments/getdepartments${(query !== undefined && query !== null && query.username != undefined)? "?username="+query.username:""}`,
                 method:"get",
 
             }),providesTags:[{type:"departments"}]
@@ -348,20 +393,24 @@ export const apiSlice=createApi({
                 method:"get"
             }),providesTags:[{type:"states"}]
         }),
-        // linkDepartment:builder.mutation<any,{data:{name:string[]},id:string}>({
-        //     query:(data)=>{
-        //         let url = "/users/adddepartments/"+data.id
-        //         console.log(data,url,"put")
-        //         return {
-        //         url,
-        //         method: "put",
-        //         body:{...data.data}
-                
-        //     }},invalidatesTags:[{type:"users"}]
-        // }),
         addService:builder.mutation<any,{data:{name:string[]},id:string}>({
             query:(data)=>({
                 url:"/users/adddepartments/"+data.id,
+                method:"put",
+                body:{...data.data}
+            }),invalidatesTags:(result,error,{id})=> [{type:"users",id}]
+        }),
+        rmService:builder.mutation<any,{data:{name:string[]},id:string}>({
+            query:(data)=>({
+                url:"/users/rmdepartment/"+data.id,
+                method:"put",
+                body:{...data.data}
+            }),invalidatesTags:[{type:"users"},{type:"departments"}]
+        }),
+///departments/addResponsableToDepartments/
+        addResponsable:builder.mutation<any,{data:{name:string[]},id:string}>({
+            query:(data)=>({
+                url:"/departments/addResponsableToDepartments/"+data.id,
                 method:"put",
                 body:{...data.data}
             }),invalidatesTags:[{type:"users"}]
@@ -640,17 +689,29 @@ export const apiSlice=createApi({
                 url:"/gc/issue",
                 method:"post",
                 body
-            }),invalidatesTags:[{type:"issues"}]
+            }),invalidatesTags: (result,error,body)=> ([{type:"issues"}])
         }),
-        getIssues:builder.query<GetIssues[]|GetIssues,string|undefined>({
-            query:(id)=>{
+        derivateIssue:builder.mutation<GetIssues,DerivationType>({
+            query:(body)=>({
+                url:"/gc/derivation",
+                method:"put",
+                body
+            }),
+            invalidatesTags:(result,error,body)=>([{type:"issues",id:body.issueId}])
+        }),
+        getIssues:builder.query<GetIssues[]|GetIssues,{id?:string,state?:"pending"|"working"|"terminated",department?:string}>({
+            query:(query)=>{
                 let url:string = "/gc/issue"
-                if (id !==undefined) url+="?id="+id
-                
+                if (query.id !==undefined) url+="?id="+query.id
+                if (query.state !== undefined)url+="?state="+query.state
+                if (query.department !== undefined)url+="&department="+query.department
                 return {
                 url,
                 method:"get"
-            }},providesTags:[{type:"issues"}]
+            }},providesTags:(result,errors,{id})=> {
+                if (id !== undefined) {return [{type:"issues",id:id}]}
+                else return [{type:"issues",id:"LIST"}]
+            }
         }),
         
         getIssuesByState:builder.query<GetIssues[]|GetIssues,string>({
@@ -661,6 +722,7 @@ export const apiSlice=createApi({
                 method:"get"
             }},providesTags:[{type:"issues"}]
         }),
+        
 
         addPhone:builder.mutation<{id:string},{id:string,phone:string}>({
             query:(body)=>{
@@ -764,5 +826,11 @@ export const {
     useDropAdminMutation,
     useCreateDocumentMutation,
     useAddServiceMutation,
-    useJwtLoginQuery,useGetIssuesByStateQuery
+    useJwtLoginQuery,
+    useGetIssuesByStateQuery,
+    useRmServiceMutation,
+    useAddResponsableMutation,
+    useDerivateIssueMutation,
+    useSendTokenQuery,
+    useChangePasswordMutation
 }=apiSlice

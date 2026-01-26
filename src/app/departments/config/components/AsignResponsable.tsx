@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import {
   apiSlice,
-  useAddServiceMutation,
+  useAddResponsableMutation,
   useGetDepartmentsQuery,
   useGetUsersQuery,
 } from "@/app/ReduxGlobals/Features/apiSlice";
@@ -19,14 +19,13 @@ import {
   AuthResponseType,
   Department,
 } from "../../../ReduxGlobals/Features/authSlice";
+import { useAppDispatch } from "@/app/ReduxGlobals/store";
 
-import { useAppDispatch, type AppDispatch } from "@/app/ReduxGlobals/store";
-
-export default function AsignDepartment() {
+export default function AsignResponsable() {
   const { data: users, isFetching } = useGetUsersQuery({});
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (users) {
+    if (users !== undefined) {
       users.forEach((user) => {
         dispatch(
           apiSlice.util.upsertQueryData("getUsers", { id: user.id }, [user])
@@ -34,21 +33,20 @@ export default function AsignDepartment() {
       });
     }
   }, [users, dispatch]);
-
   return (
     <>
       {isFetching ? (
         <Spinner />
       ) : (
-        users?.map((item) => <UserCard key={item.id} id={item.id} />)
+        users?.map((item) => <UserCard id={item.id} key={item.id} />)
       )}
     </>
   );
 }
 
 function UserCard({ id }: { id: string }) {
-  const [linkDepartment, { isLoading }] = useAddServiceMutation();
-  const { data: user } = useGetUsersQuery({ id: id });
+  const [linkDepartment, { isLoading }] = useAddResponsableMutation();
+  const { data: user } = useGetUsersQuery({ id });
 
   const { register, handleSubmit } = useForm<{ name: string }>();
   const { data, isFetching } = useGetDepartmentsQuery(undefined);
@@ -64,8 +62,7 @@ function UserCard({ id }: { id: string }) {
       .then((res) => console.log(res, "ok"))
       .catch((e) => console.log(e));
   };
-  if (!user) return <Spinner />;
-  console.log(user, "getDepartmentss");
+  if (user === undefined || user.length === 0) return <Spinner />;
   return (
     <>
       <Card className="mt-6 w-3/5">
@@ -90,9 +87,8 @@ function UserCard({ id }: { id: string }) {
                   key={program.id}
                   className="col-span-1"
                   defaultChecked={
-                    user[0].DepartmentUsers?.find(
-                      (department) =>
-                        department.Departments.name === program.name
+                    user[0].responsibleFor.find(
+                      (department) => department.name === program.name
                     ) !== undefined
                       ? true
                       : undefined

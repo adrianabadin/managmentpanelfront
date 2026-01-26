@@ -26,15 +26,15 @@ export function DocumentationView({
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  id: string;
-  files?: { driveId: string; name: string; description: string; id: string }[];
+  id?: string;
+  files?: { driveId: string; name: string; description: string }[];
 }) {
   const [getFiles, { isFetching }] = apiSlice.endpoints.getFiles.useLazyQuery();
   const dataRef = useRef<
-    Array<{ id: string; name: string; description: string; data: string }>
-  >([{ id: "", name: "", description: "", data: "" }]);
+    Array<{ name: string; description: string; data: string }>
+  >([{ name: "", description: "", data: "" }]);
   useEffect(() => {
-    dataRef.current = [{ id: "", name: "", description: "", data: "" }];
+    dataRef.current = [{ name: "", description: "", data: "" }];
     files?.forEach((item) => {
       getFiles(item.driveId)
         .unwrap()

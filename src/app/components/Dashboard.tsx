@@ -1,42 +1,77 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { Spinner } from "@material-tailwind/react";
+import Card from "../departments/components/CustomCard";
+import CardBody from "../departments/components/CustomCardBody";
+import Typography from "../departments/components/CustomTypography";
 import {
+  apiSlice,
   GetIssues,
-  useGetIssuesByStateQuery,
   useGetIssuesQuery,
-} from "@/app/ReduxGlobals/Features/apiSlice";
-import {
-  Button,
-  Card,
-  CardBody,
-  Spinner,
-  Typography,
-} from "@material-tailwind/react";
-import { Dispatch, SetStateAction, useState } from "react";
-import { IssueView } from "./gc/IssueView";
-import { clearAuth } from "@/app/ReduxGlobals/Features/authSlice";
+} from "../ReduxGlobals/Features/apiSlice";
+import { IssueView } from "../departments/components/gc/IssueView";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import Button from "../departments/components/CustomButton";
+import { useAppDispatch } from "../ReduxGlobals/store";
 
-function Gc() {
+export function Dashboard({ programa }: { programa: string }) {
   const {
-    data: issues,
-    isFetching,
-    error,
-    isError,
-    isSuccess,
-  } = useGetIssuesByStateQuery("pending");
+    data: pending,
+    isFetching: isPending,
+    isSuccess: isPendingSuccess,
+    isError: isPendingError,
+    error: pendingError,
+  } = useGetIssuesQuery({
+    state: "pending",
+    department: programa,
+  });
   const {
     data: working,
-    isFetching: isFetchingW,
-    isSuccess: isSuccessW,
-  } = useGetIssuesByStateQuery("working");
+    isFetching: isWorking,
+    isSuccess: isWorkingSuccess,
+    isError: isWorkingError,
+    error: workingError,
+  } = useGetIssuesQuery({
+    state: "working",
+    department: programa,
+  });
   const {
-    data: finished,
-    isFetching: isFetchingF,
-    isSuccess: isSuccessF,
-  } = useGetIssuesByStateQuery("terminated");
-  const [open, setOpen] = useState<boolean>(false);
+    data: terminated,
+    isFetching: isTerminated,
+    isSuccess: isTerminatedSuccess,
+    isError: isTerminatedError,
+    error: terminatedError,
+  } = useGetIssuesQuery({
+    state: "terminated",
+    department: programa,
+  });
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (pending !== undefined && Array.isArray(pending)) {
+      pending.forEach((item) => {
+        dispatch(
+          apiSlice.util.upsertQueryData("getIssues", { id: item.id }, item)
+        );
+      });
+    }
+    if (working !== undefined && Array.isArray(working)) {
+      working.forEach((item) => {
+        dispatch(
+          apiSlice.util.upsertQueryData("getIssues", { id: item.id }, item)
+        );
+      });
+    }
+    if (terminated !== undefined && Array.isArray(terminated)) {
+      terminated.forEach((item) => {
+        dispatch(
+          apiSlice.util.upsertQueryData("getIssues", { id: item.id }, item)
+        );
+      });
+    }
+  }, [dispatch, pending, working, terminated]);
 
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedIssue, setSelectedIssue] = useState<string>("");
   const [issue, setIssue] = useState<GetIssues>({
     createdAt: new Date(),
     description: "",
@@ -53,12 +88,12 @@ function Gc() {
     state: { state: "pending" },
     department: "",
   });
-  if (isError && "data" in error && error.data === "Unauthorized") {
-    clearAuth();
-  }
-  console.log(error, "data");
   return (
     <section className="w-full flex flex-col justify-center">
+      <Typography variant="h1" color="blue" className="w-full text-center mt-4">
+        {programa}
+      </Typography>
+
       <Card className="w-full mx-4 mt-4">
         <CardBody>
           <Typography variant="h2" color="blue" className="w-full text-center">
@@ -85,20 +120,22 @@ function Gc() {
           <Typography className="col-span-3" variant="h6" color="blue-gray">
             e-Mail
           </Typography>
-          {isSuccess && Array.isArray(issues) ? (
-            issues.map((item, i) => {
+          {isPending ? (
+            <Spinner fontSize={60} className="mx-auto" />
+          ) : isPendingSuccess && Array.isArray(pending) ? (
+            pending.map((item, i) => {
               console.log(item, "dada");
               return (
                 <IssueRow
                   key={item.id}
-                  data={item}
+                  id={item.id}
                   setOpen={setOpen}
-                  setIssue={setIssue}
+                  setSelectedIssue={setSelectedIssue}
                 />
               );
             })
-          ) : isError ? (
-            "data" in error && error.data === "Unauthorized" ? (
+          ) : isPendingError ? (
+            "data" in pendingError && pendingError.data === "Unauthorized" ? (
               <div className="flex flex-col outline-2 outline-red-500 p-5 text-red-500 w-full col-span-12 font-sans justify-center text-3xl text-center">
                 Acceso no Autorizado
               </div>
@@ -140,20 +177,22 @@ function Gc() {
           <Typography className="col-span-3" variant="h6" color="blue-gray">
             e-Mail
           </Typography>
-          {isSuccessW && Array.isArray(working) ? (
+          {isWorking ? (
+            <Spinner fontSize={60} className="mx-auto" />
+          ) : isWorkingSuccess && Array.isArray(working) ? (
             working.map((item, i) => {
               console.log(item, "dada");
               return (
                 <IssueRow
                   key={item.id}
-                  data={item}
+                  id={item.id}
                   setOpen={setOpen}
-                  setIssue={setIssue}
+                  setSelectedIssue={setSelectedIssue}
                 />
               );
             })
-          ) : isError ? (
-            "data" in error && error.data === "Unauthorized" ? (
+          ) : isWorkingError ? (
+            "data" in workingError && workingError.data === "Unauthorized" ? (
               <div className="flex flex-col outline-2 outline-red-500 p-5 text-red-500 w-full col-span-12 font-sans justify-center text-3xl text-center">
                 Acceso no Autorizado
               </div>
@@ -195,20 +234,23 @@ function Gc() {
           <Typography className="col-span-3" variant="h6" color="blue-gray">
             e-Mail
           </Typography>
-          {isSuccessW && Array.isArray(finished) ? (
-            finished.map((item, i) => {
+          {isTerminated ? (
+            <Spinner fontSize={60} className="mx-auto" />
+          ) : isTerminatedSuccess && Array.isArray(terminated) ? (
+            terminated.map((item, i) => {
               console.log(item, "dada");
               return (
                 <IssueRow
                   key={item.id}
-                  data={item}
+                  id={item.id}
                   setOpen={setOpen}
-                  setIssue={setIssue}
+                  setSelectedIssue={setSelectedIssue}
                 />
               );
             })
-          ) : isError ? (
-            "data" in error && error.data === "Unauthorized" ? (
+          ) : isTerminatedError ? (
+            "data" in terminatedError &&
+            terminatedError.data === "Unauthorized" ? (
               <div className="flex flex-col outline-2 outline-red-500 p-5 text-red-500 w-full col-span-12 font-sans justify-center text-3xl text-center">
                 Acceso no Autorizado
               </div>
@@ -224,21 +266,24 @@ function Gc() {
         </CardBody>
       </Card>
 
-      <IssueView open={open} setOpen={setOpen} issue={issue} />
+      <IssueView open={open} setOpen={setOpen} issueId={selectedIssue} />
     </section>
   );
 }
 
 function IssueRow({
-  data,
-  setIssue,
+  id,
+  setSelectedIssue,
   setOpen,
 }: {
-  data: GetIssues;
-  setIssue: Dispatch<SetStateAction<GetIssues>>;
+  id: string;
+  setSelectedIssue: Dispatch<SetStateAction<string>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-  return (
+  const { data, isSuccess, isFetching } = useGetIssuesQuery({ id });
+  return isFetching ? (
+    <Spinner fontSize={60} className="mx-auto" />
+  ) : isSuccess && data && !Array.isArray(data) ? (
     <Button
       variant="filled"
       key={data.id}
@@ -251,8 +296,8 @@ function IssueRow({
       } p-0 m-0 py-3 w-full shadow-none border-none col-span-12 grid grid-cols-12 hover:bg-blue-200`}
       onClick={() => {
         setOpen(true);
-        console.log(data);
-        setIssue(data);
+        console.log(data, "fetcheado");
+        setSelectedIssue(data.id);
       }}
     >
       <div className="col-span-2 flex justify-center text-blue-gray-700">
@@ -263,7 +308,5 @@ function IssueRow({
       <div className="col-span-2 text-blue-gray-700">{data.phone}</div>
       <div className="col-span-3 text-blue-gray-700">{data.email}</div>
     </Button>
-  );
+  ) : null;
 }
-
-export default Gc;

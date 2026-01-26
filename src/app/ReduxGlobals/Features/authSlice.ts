@@ -1,8 +1,14 @@
 import { createSlice,PayloadAction } from "@reduxjs/toolkit";
 import { apiSlice, SignUpType } from "./apiSlice";
-export interface AuthResponseType extends Omit<SignUpType,"password2"|"password">
+import { DepartmentType } from '../../../../../managmentpanelback/src/users/users.schema';
+export type Department= {
+Departments:{name:string,id:string}
+}
+export interface AuthResponseType extends Omit<SignUpType,"password2"|"password"> 
 {
     id:string
+    DepartmentUsers:Department[]
+    responsibleFor:Department["Departments"][]
 }
 const initialState:AuthResponseType={
     lastname:"",
@@ -10,7 +16,9 @@ const initialState:AuthResponseType={
     username:"",
     id:"",
     isAdmin:false,
-    Departments:[]
+    DepartmentUsers:[],
+    Departments:[],
+    responsibleFor:[]
 }
 
 export const authSlice=createSlice({

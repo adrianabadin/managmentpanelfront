@@ -6,7 +6,7 @@ import { Spinner } from "@material-tailwind/react";
 import { useState } from "react";
 
 function Page() {
-  const { isError, isFetching } = useJwtLoginQuery(undefined);
+  const { isError, isFetching, isSuccess } = useJwtLoginQuery(undefined);
   const [open, setOpen] = useState<boolean>(true);
   const router = useRouter();
   if (isError) {

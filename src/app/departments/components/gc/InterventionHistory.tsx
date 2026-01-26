@@ -12,10 +12,11 @@ import {
 
 import picture from "@/icons/picture.svg";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import close from "@/icons/close.svg";
 import { DocumentationView } from "./DocumentationView";
 import {
+  apiSlice,
   GetInterventions,
   useGetInterventionsQuery,
 } from "@/app/ReduxGlobals/Features/apiSlice";
@@ -29,18 +30,21 @@ function InterventionHistory({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { data, isFetching } = useGetInterventionsQuery(id);
+  console.log(data, "DATA INTERVENCIONES");
   return (
     <Dialog
+      placeholder={""}
       open={isOpen}
       size="xl"
       className="mx-4"
       handler={(prev) => setOpen(!prev)}
     >
-      <DialogHeader className="flex justify-between">
-        <Typography variant="h2" color="blue">
+      <DialogHeader placeholder={""} className="flex justify-between">
+        <Typography placeholder={""} variant="h2" color="blue">
           Historial de Intervenciones
         </Typography>
         <Button
+          placeholder={""}
           variant="filled"
           className="w-fit bg-transparent shadow-none border-none outline-none"
           onClick={() => setOpen(false)}
@@ -48,7 +52,7 @@ function InterventionHistory({
           <Image src={close} alt="Cerrar" width={32} height={32} />
         </Button>
       </DialogHeader>
-      <DialogBody className="w-full">
+      <DialogBody placeholder={""} className="w-full">
         {isFetching ? (
           <Spinner />
         ) : data !== undefined ? (
@@ -64,26 +68,68 @@ function InterventionHistory({
 function InterventionRow({ data }: { data: GetInterventions }) {
   const [open, setOpen] = useState<number>(0);
   const [documentation, setDocumentation] = useState<boolean>(false);
+  const [url, setUrl] = useState<{ id: string; url: string }[]>([]);
+  const [getFiles, { isFetching: isFetchingFiles }] =
+    apiSlice.endpoints.getFiles.useLazyQuery();
+
+  useEffect(() => {
+    data.files?.forEach((file) => {
+      getFiles(file.driveId)
+        .unwrap()
+        .then((res) => {
+          const blob = new Blob([
+            new Uint8Array(Buffer.from(res.data, "base64")),
+          ]);
+          const urlToPush = {
+            id: file.driveId,
+            url: URL.createObjectURL(blob),
+          };
+
+          setUrl((prev) => {
+            if (prev.find((item) => item.id === urlToPush.id)) {
+              return prev;
+            }
+            return [...prev, urlToPush];
+          });
+        })
+        .catch((e) => console.log(e));
+    });
+  }, [getFiles, data]);
+
   const handler = (value: number) => {
     if (open === value) return setOpen(0);
     setOpen(value);
-    console.log(open);
   };
   return (
-    <Accordion open={open === 1} className="w-full">
-      <AccordionHeader onClick={() => handler(1)} className="w-full">
+    <Accordion placeholder={""} open={open === 1} className="w-full">
+      <AccordionHeader
+        placeholder={""}
+        onClick={() => handler(1)}
+        className="w-full"
+      >
         <div className="grid grid-cols-12 justify-around w-full ">
           <Typography
+            placeholder={""}
             variant="h5"
             color="blue-gray"
             className="col-span-3"
           >{`Fecha: ${new Date(
-            data.createdAt
+            data.createdAt,
           ).toLocaleDateString()}`}</Typography>
-          <Typography variant="h5" color="blue-gray" className="col-span-3">
+          <Typography
+            placeholder={""}
+            variant="h5"
+            color="blue-gray"
+            className="col-span-3"
+          >
             {`Hora: ${new Date(data.createdAt).toLocaleTimeString()}`}
           </Typography>
-          <Typography variant="h5" color="blue-gray" className="col-span-6">
+          <Typography
+            placeholder={""}
+            variant="h5"
+            color="blue-gray"
+            className="col-span-6"
+          >
             {`Usuario Interviniente: ${
               data.user !== null
                 ? data.user.username !== null
@@ -96,25 +142,53 @@ function InterventionRow({ data }: { data: GetInterventions }) {
       </AccordionHeader>
       <AccordionBody className="flex flex-row">
         <div className="flex flex-col w-2/3">
-          <Typography variant="h5" color="blue-gray" className="col-span-9">
+          <Typography
+            placeholder={""}
+            variant="h5"
+            color="blue-gray"
+            className="col-span-9"
+          >
             {`Descripcion:`}
           </Typography>
-          <Typography variant="paragraph" color="black" className="col-span-9">
+          <Typography
+            placeholder={""}
+            variant="paragraph"
+            color="black"
+            className="col-span-9"
+          >
             {data.text}
           </Typography>
         </div>
         <div className="w-1/3 justify-center flex">
           <Button
+            placeholder={""}
             className="bg-transparent w-fit shadow-none justify-center"
             variant="filled"
             onClick={() => setDocumentation((prev) => !prev)}
           >
-            <Image
-              src={picture}
-              alt="Documentacion asociada"
-              width={64}
-              height={64}
-            />
+            {Array.isArray(url) && url.length > 0 ? (
+              url.map((image, index) => {
+                console.log(image, "IMAGE URL");
+                return (
+                  <Image
+                    src={image.url}
+                    alt="Documentacion asociada"
+                    width={64}
+                    height={64}
+                    key={index}
+                  />
+                );
+              })
+            ) : isFetchingFiles ? (
+              <Spinner />
+            ) : (
+              <Image
+                src={picture}
+                alt="Documentacion asociada"
+                width={64}
+                height={64}
+              />
+            )}
           </Button>
         </div>
       </AccordionBody>
@@ -135,6 +209,7 @@ function Documentation({
 }) {
   return (
     <Dialog
+      placeholder={""}
       handler={() => {
         console.log(open, "texto");
         setOpen((prev) => !prev);
@@ -142,11 +217,12 @@ function Documentation({
       open={open}
       size="xl"
     >
-      <DialogHeader className="flex justify-between">
-        <Typography variant="h3" color="blue">
+      <DialogHeader placeholder={""} className="flex justify-between">
+        <Typography placeholder={""} variant="h3" color="blue">
           Documentacion agregada
         </Typography>
         <Button
+          placeholder={""}
           variant="filled"
           className=" bg-transparent shadow-none"
           onClick={() => setOpen((prev) => !prev)}

@@ -21,6 +21,7 @@ import { Suspense, useState } from "react";
 import FileUpload from "./FileUpload";
 import {
   useCreateIssueMutation,
+  useGetDepartmentsQuery,
   useGetKOIsQuery,
   useGetStatesQuery,
 } from "@/app/ReduxGlobals/Features/apiSlice";
@@ -95,6 +96,7 @@ const userIssue = z
     kind: z.string({ required_error: "El campo es obligatorio" }).min(3, {
       message: "El tipo de solicitud debe contener al menos 3 caracteres",
     }),
+    department: z.string({ required_error: "El campo es obligatorio" }),
     description: z
       .string({ required_error: "El campo es obligatorio" })
       .min(3, {
@@ -135,6 +137,8 @@ function IssueForm({ auth }: { auth: AuthResponseType }) {
   const [createIssue] = useCreateIssueMutation();
   const { data, isFetching } = useGetStatesQuery(undefined);
   const { data: kois, isFetching: koisFetch } = useGetKOIsQuery(undefined);
+  const { data: departments, isFetching: isFetchingDep } =
+    useGetDepartmentsQuery({});
   if (
     (auth.Departments === undefined || auth.Departments.length === 0) &&
     auth.isAdmin === false
@@ -144,7 +148,7 @@ function IssueForm({ auth }: { auth: AuthResponseType }) {
         Debes ingresar para ver esta pagina
       </div>
     );
-  return isFetching || koisFetch ? (
+  return isFetching || koisFetch || isFetchingDep ? (
     <Spinner />
   ) : (
     <main className="w-11/12 bg-white flex flex-col justify-center mx-auto p-8">
@@ -331,7 +335,38 @@ function IssueForm({ auth }: { auth: AuthResponseType }) {
               </Suspense>
             )}
           ></Controller> */}
-
+          <Controller
+            name="department"
+            control={control}
+            render={({ field }) => (
+              <>
+                <Suspense>
+                  <Select
+                    placeholder=""
+                    label="Programa"
+                    {...field}
+                    className="col-span-2 col-start-1 text-black"
+                    containerProps={{ className: "mt-10 mb-10" }}
+                    onChange={(data) => {
+                      data !== undefined || data !== null || data >= 0
+                        ? setValue("department", data)
+                        : setValue("department", "");
+                    }}
+                  >
+                    {isFetchingDep || departments === undefined ? (
+                      <Spinner />
+                    ) : (
+                      departments.map((dep) => (
+                        <Option key={dep.id} value={dep.name}>
+                          {dep.name}
+                        </Option>
+                      ))
+                    )}
+                  </Select>
+                </Suspense>
+              </>
+            )}
+          ></Controller>
           <FileButton
             text="Subir documentacion (Formato JPG)"
             handleClick={() => setOpen((prev) => !prev)}
