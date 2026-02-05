@@ -252,10 +252,17 @@ export const changePasswordSchema=z.object({
         token:z.string({invalid_type_error:"Debes enviar una cadena",required_error:"El token es obligatorio"})
     
 })
+export const issuesByUserSchema = z.object({
+  query: z.object({
+    username:z.string({required_error:"Debes enviar un usuario"}).email({message:"EL usuario debe ser un mail valido"}),
+    state:z.enum(["pending","working","terminated"])
+  })
+})
 
 /**
  * TYPES
  */ 
+export type IssuesByUserRequest =z.infer<typeof issuesByUserSchema>["query"]
 export type ChangePasswordType =z.infer<typeof changePasswordSchema>
 export type DerivationType=z.infer<typeof derivationSchema>["body"]
 export type Intervention=z.infer<typeof interventionSchema>
@@ -324,6 +331,18 @@ export const apiSlice=createApi({
                 method:"get"
             })
         }),
+        deleteUser:builder.mutation<AuthResponseType,{id:string}>({
+            query:(id)=>({
+                url:"/users/delete?id="+id.id,
+                method:"delete"
+            }),invalidatesTags: (result,error,{id})=>[{type:"users",id}]
+        }),
+        reviveUser:builder.mutation<AuthResponseType,{id:string}>({
+            query:(id)=>({
+            url:"users/revive?id="+id.id,
+             method:"put"  
+        }),invalidatesTags:(result,error,{id})=>[{type:"users",id}]
+        }),
 getUsers: builder.query<AuthResponseType[], { id?: string }>({
   query: ({ id }) => ({
     url: `/users/getUsers${id ? `/${id}` : ""}`,
@@ -358,27 +377,30 @@ changePassword:builder.mutation<AuthResponseType,ChangePasswordType>({
             query:(id)=>({
                 url:  `/users/setadmin/${id}`,
                 method:"put"
-            }),invalidatesTags:["users"]
+            }),invalidatesTags:(_result,_error,id)=> [{type:"users",id},{type:"users",id:"LIST"}]
         }),
         dropAdmin:builder.mutation<AuthResponseType,string>({
             query:(id)=>({
                 url:  `/users/dropadmin/${id}`,
                 method:"put"
-            }),invalidatesTags:["users"]
+            }),invalidatesTags:(_result,_error,id)=> [{type:"users",id},{type:"users",id:"LIST"}]
         }),
         createDepartment:builder.mutation<DepartmentResponseType,DepartmentAddType>({
             query:(data)=>({
                 url:"/departments/createdepartment",
                 method:"post",
                 body:data
-            }),invalidatesTags:["users", "departments"]
+            }),invalidatesTags:(result,_error,_data)=> {
+                if (result !==undefined) return[{type:"users"}, {type:"departments",id:result.id}, {type:"departments",id:"LIST"}]
+                else return[{type:"users"}, {type:"departments",id:"LIST"}]
+            }
         }),
         getDepartments:builder.query<DepartmentResponseType[],{username?:string}|undefined>({
             query:(query)=>({
                 url:`/departments/getdepartments${(query !== undefined && query !== null && query.username != undefined)? "?username="+query.username:""}`,
                 method:"get",
 
-            }),providesTags:[{type:"departments"}]
+            }),providesTags:[{type:"departments",id:"LIST"}]
         }),
         createState:builder.mutation<any,DemografyCreateType>({
             query:(data)=>({
@@ -699,12 +721,23 @@ changePassword:builder.mutation<AuthResponseType,ChangePasswordType>({
             }),
             invalidatesTags:(result,error,body)=>([{type:"issues",id:body.issueId}])
         }),
+        getIssuesByUser:builder.query<GetIssues[],IssuesByUserRequest>({
+            query:({state,username})=>({
+                url:"/gc/issues?="+state+"&username="+username,
+                method:"get"
+            }),providesTags:[{type: "issues",id:"LIST"}]
+        }),
         getIssues:builder.query<GetIssues[]|GetIssues,{id?:string,state?:"pending"|"working"|"terminated",department?:string}>({
             query:(query)=>{
                 let url:string = "/gc/issue"
                 if (query.id !==undefined) url+="?id="+query.id
                 if (query.state !== undefined)url+="?state="+query.state
-                if (query.department !== undefined)url+="&department="+query.department
+                
+                if (query.department !== undefined){
+                    if (query.department === "LIST"){
+                        
+                    }
+                    url+="&department="+query.department}
                 return {
                 url,
                 method:"get"
@@ -832,5 +865,7 @@ export const {
     useAddResponsableMutation,
     useDerivateIssueMutation,
     useSendTokenQuery,
-    useChangePasswordMutation
+    useChangePasswordMutation,
+    useDeleteUserMutation,
+    useReviveUserMutation
 }=apiSlice

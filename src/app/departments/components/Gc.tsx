@@ -59,30 +59,56 @@ function Gc() {
   console.log(error, "data");
   return (
     <section className="w-full flex flex-col justify-center">
-      <Card className="w-full mx-4 mt-4">
-        <CardBody>
-          <Typography variant="h2" color="blue" className="w-full text-center">
+      <Card placeholder={""} className="w-full mx-4 mt-4">
+        <CardBody placeholder={""}>
+          <Typography
+            placeholder={""}
+            variant="h2"
+            color="blue"
+            className="w-full text-center"
+          >
             Nuevas Gestiones
           </Typography>
         </CardBody>
-        <CardBody className="grid grid-cols-12 gap-4">
+        <CardBody placeholder={""} className="grid grid-cols-12 gap-4">
           <Typography
+            placeholder={""}
             variant="h6"
             color="blue-gray"
             className="col-span-2 flex justify-center text-center"
           >
             Fecha de ingreso
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            placeholder={""}
+            className="col-span-3"
+            variant="h6"
+            color="blue-gray"
+          >
             Nombre
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            placeholder={""}
+            variant="h6"
+            color="blue-gray"
+          >
             Problema
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            variant="h6"
+            placeholder={""}
+            color="blue-gray"
+          >
             Telefono
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-3"
+            variant="h6"
+            color="blue-gray"
+            placeholder={""}
+          >
             e-Mail
           </Typography>
           {isSuccess && Array.isArray(issues) ? (
@@ -114,30 +140,56 @@ function Gc() {
         </CardBody>
       </Card>
 
-      <Card className="w-full mx-4 mt-4">
-        <CardBody>
-          <Typography variant="h2" color="blue" className="w-full text-center">
+      <Card placeholder={""} className="w-full mx-4 mt-4">
+        <CardBody placeholder={""}>
+          <Typography
+            placeholder={""}
+            variant="h2"
+            color="blue"
+            className="w-full text-center"
+          >
             Tramites en trabajo
           </Typography>
         </CardBody>
-        <CardBody className="grid grid-cols-12 gap-4">
+        <CardBody className="grid grid-cols-12 gap-4" placeholder={""}>
           <Typography
+            placeholder={""}
             variant="h6"
             color="blue-gray"
             className="col-span-2 flex justify-center text-center"
           >
             Fecha de ingreso
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-3"
+            placeholder={""}
+            variant="h6"
+            color="blue-gray"
+          >
             Nombre
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            variant="h6"
+            placeholder={""}
+            color="blue-gray"
+          >
             Problema
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            variant="h6"
+            color="blue-gray"
+            placeholder={""}
+          >
             Telefono
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-3"
+            variant="h6"
+            color="blue-gray"
+            placeholder={""}
+          >
             e-Mail
           </Typography>
           {isSuccessW && Array.isArray(working) ? (
@@ -169,30 +221,56 @@ function Gc() {
         </CardBody>
       </Card>
 
-      <Card className="w-full mx-4 mt-4">
-        <CardBody>
-          <Typography variant="h2" color="blue" className="w-full text-center">
+      <Card placeholder={""} className="w-full mx-4 mt-4">
+        <CardBody placeholder={""}>
+          <Typography
+            variant="h2"
+            placeholder={""}
+            color="blue"
+            className="w-full text-center"
+          >
             Tramites Finalizados
           </Typography>
         </CardBody>
-        <CardBody className="grid grid-cols-12 gap-4">
+        <CardBody className="grid grid-cols-12 gap-4" placeholder={""}>
           <Typography
+            placeholder={""}
             variant="h6"
             color="blue-gray"
             className="col-span-2 flex justify-center text-center"
           >
             Fecha de ingreso
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-3"
+            placeholder={""}
+            variant="h6"
+            color="blue-gray"
+          >
             Nombre
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            variant="h6"
+            placeholder={""}
+            color="blue-gray"
+          >
             Problema
           </Typography>
-          <Typography className="col-span-2" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-2"
+            variant="h6"
+            color="blue-gray"
+            placeholder={""}
+          >
             Telefono
           </Typography>
-          <Typography className="col-span-3" variant="h6" color="blue-gray">
+          <Typography
+            className="col-span-3"
+            variant="h6"
+            color="blue-gray"
+            placeholder={""}
+          >
             e-Mail
           </Typography>
           {isSuccessW && Array.isArray(finished) ? (
@@ -224,7 +302,7 @@ function Gc() {
         </CardBody>
       </Card>
 
-      <IssueView open={open} setOpen={setOpen} issue={issue} />
+      <IssueView open={open} setOpen={setOpen} issueId={issue.id} />
     </section>
   );
 }
@@ -240,6 +318,7 @@ function IssueRow({
 }) {
   return (
     <Button
+      placeholder={""}
       variant="filled"
       key={data.id}
       className={`${

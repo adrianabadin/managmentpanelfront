@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "@/icons/region.png";
 import Image from "next/image";
 import {
@@ -16,7 +16,6 @@ import LoginModal from "./Login";
 import SignUpModal from "./Signup";
 import { useAppSelector } from "../ReduxGlobals/store";
 import {
-  apiSlice,
   useJwtLoginQuery,
   useLoginMutation,
   useLogoutQuery,
@@ -25,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { clearAuth } from "../ReduxGlobals/Features/authSlice";
 import Link from "next/link";
 import Menuitem from "./menuitem";
+import { apiSlice } from "../ReduxGlobals/Features/apiSlice";
 
 export function StickyNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
@@ -37,19 +37,27 @@ export function StickyNavbar() {
     logout(undefined);
     dispatch(clearAuth());
   };
-  const { isFetching, data: jwtData } = useJwtLoginQuery(undefined);
+  const [jwtLogin] = apiSlice.endpoints.jwtLogin.useLazyQuerySubscription({
+    pollingInterval: 1000 * 60 * 5,
+  });
+  useEffect(() => {
+    jwtLogin(undefined);
+  }, [jwtLogin]);
+
+  //const { isFetching, data: jwtData } = useJwtLoginQuery(undefined);
   const [login, { isLoading }] = useLoginMutation();
-  console.log(username);
+
   React.useEffect(() => {
     window.addEventListener(
       "resize",
-      () => window.innerWidth >= 960 && setOpenNav(false)
+      () => window.innerWidth >= 960 && setOpenNav(false),
     );
   }, []);
   const data = useAppSelector((state) => state.auth);
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
+        placeholder={""}
         as="li"
         variant="small"
         color="white"
@@ -60,6 +68,7 @@ export function StickyNavbar() {
         </Link>
       </Typography>
       <Typography
+        placeholder={""}
         as="li"
         variant="small"
         color="white"
@@ -70,6 +79,7 @@ export function StickyNavbar() {
         </Link>
       </Typography>
       <Typography
+        placeholder={""}
         as="li"
         variant="small"
         color="white"
@@ -77,6 +87,9 @@ export function StickyNavbar() {
       >
         <Link href="/departments" className="flex items-center">
           Areas
+        </Link>
+        <Link href="/worklist" className="flex items-center">
+          Mis Pendientes
         </Link>
       </Typography>
       {data !== undefined ? (
@@ -89,7 +102,10 @@ export function StickyNavbar() {
 
   return (
     <header className=" max-h-[768px]  top-0  h-32 w-full overflow-hidden  ">
-      <Navbar className="z-10  max-w-full h-full rounded-none px-4  lg:px-8 lg:py-4 bg-gradient-to-r from-pink-600 to-blue-600 my-auto">
+      <Navbar
+        className="z-10  max-w-full h-full rounded-none px-4  lg:px-8 lg:py-4 bg-gradient-to-r from-pink-600 to-blue-600 my-auto"
+        placeholder={""}
+      >
         <div className="flex items-center justify-between text-blue-gray-900 h-full">
           {/* <Typography
             variant="h2"
@@ -107,6 +123,7 @@ export function StickyNavbar() {
               {username === "" ? (
                 <>
                   <Button
+                    placeholder={""}
                     variant="text"
                     size="sm"
                     className="hidden text-gray-100 lg:inline-block"
@@ -115,6 +132,7 @@ export function StickyNavbar() {
                     <span>Ingresar</span>
                   </Button>
                   <Button
+                    placeholder={""}
                     variant="gradient"
                     size="sm"
                     className="hidden lg:inline-block text-gray-100"
@@ -125,6 +143,7 @@ export function StickyNavbar() {
                 </>
               ) : isLoading ? (
                 <Typography
+                  placeholder={""}
                   variant="paragraph"
                   as="p"
                   href="#"
@@ -136,6 +155,7 @@ export function StickyNavbar() {
               ) : (
                 <span className="absolute top-2 right-2  flex">
                   <Typography
+                    placeholder={""}
                     variant="paragraph"
                     as="p"
                     href="#"
@@ -145,6 +165,7 @@ export function StickyNavbar() {
                     {`Bienvenido ${username}`}
                   </Typography>
                   <Typography
+                    placeholder={""}
                     variant="paragraph"
                     as="button"
                     color="gray"
@@ -157,6 +178,7 @@ export function StickyNavbar() {
               )}
             </div>
             <IconButton
+              placeholder={""}
               variant="text"
               className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
               ripple={false}
@@ -199,6 +221,7 @@ export function StickyNavbar() {
           {navList}
           <div className="flex items-center gap-x-1">
             <Button
+              placeholder={""}
               fullWidth
               variant="text"
               size="sm"
@@ -208,6 +231,7 @@ export function StickyNavbar() {
               <span>Log In</span>
             </Button>
             <Button
+              placeholder={""}
               fullWidth
               variant="gradient"
               size="sm"

@@ -16,8 +16,13 @@ import { useForm } from "react-hook-form";
 //import { LoginSchema, LoginType } from "../ReduxGlobals/Features/apiSlice";
 import { error } from "console";
 import { z } from "zod";
-import { apiSlice, useLoginMutation } from "../ReduxGlobals/Features/apiSlice";
+import {
+  apiSlice,
+  useLoginMutation,
+  useSignUpMutation,
+} from "../ReduxGlobals/Features/apiSlice";
 import Link from "next/link";
+import SignUpModal from "./Signup";
 const LoginSchema = z.object({
   username: z.string().email({ message: "Debes ingresar un email valido" }),
   password: z
@@ -63,6 +68,11 @@ export function LoginModal({
       })
       .catch((error) => setError("root", { message: error }));
   };
+  const [signUp, setSignUp] = useState<boolean>(false);
+  // const [
+  //   signUp,
+  //   { isError: isSignUpError, isLoading: isSignUpLoading, error: signUpError },
+  // ] = useSignUpMutation();
   return (
     <>
       <Dialog
@@ -124,18 +134,28 @@ export function LoginModal({
             >
               {isLoading ? "Ingresando..." : "Ingresar"}
             </Button>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                const { username } = getValues();
-                if (username !== undefined && username !== null) {
-                  sendTokenTrigger({ username });
-                }
-              }}
-            >
-              {isSendTokenFetching ? <Spinner /> : "Recuperar Contraseña"}
-            </a>
+            <div className="flex justify-around w-full my-3">
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const { username } = getValues();
+                  if (username !== undefined && username !== null) {
+                    sendTokenTrigger({ username });
+                  }
+                }}
+              >
+                {isSendTokenFetching ? <Spinner /> : "Recuperar Contraseña"}
+              </a>
+              <a
+                href="#"
+                onClick={() => {
+                  setSignUp((e) => !e);
+                }}
+              >
+                Registrar Usuario
+              </a>
+            </div>
 
             {isSendTokenError ? (
               <p className="text-red-500 text-center">
@@ -146,6 +166,7 @@ export function LoginModal({
             )}
           </DialogFooter>
         </form>
+        <SignUpModal open={signUp} setOpen={setSignUp} />
       </Dialog>
     </>
   );

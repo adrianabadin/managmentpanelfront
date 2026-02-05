@@ -68,7 +68,15 @@ function InterventionHistory({
 function InterventionRow({ data }: { data: GetInterventions }) {
   const [open, setOpen] = useState<number>(0);
   const [documentation, setDocumentation] = useState<boolean>(false);
-  const [url, setUrl] = useState<{ id: string; url: string }[]>([]);
+  const [url, setUrl] = useState<
+    {
+      id: string;
+      driveId: string;
+      data: string;
+      name: string;
+      description: string;
+    }[]
+  >([]);
   const [getFiles, { isFetching: isFetchingFiles }] =
     apiSlice.endpoints.getFiles.useLazyQuery();
 
@@ -81,8 +89,9 @@ function InterventionRow({ data }: { data: GetInterventions }) {
             new Uint8Array(Buffer.from(res.data, "base64")),
           ]);
           const urlToPush = {
+            ...file,
             id: file.driveId,
-            url: URL.createObjectURL(blob),
+            data: URL.createObjectURL(blob),
           };
 
           setUrl((prev) => {
@@ -171,7 +180,7 @@ function InterventionRow({ data }: { data: GetInterventions }) {
                 console.log(image, "IMAGE URL");
                 return (
                   <Image
-                    src={image.url}
+                    src={image.data}
                     alt="Documentacion asociada"
                     width={64}
                     height={64}
@@ -193,7 +202,7 @@ function InterventionRow({ data }: { data: GetInterventions }) {
         </div>
       </AccordionBody>
       <DocumentationView
-        files={data.files}
+        files={url}
         open={documentation}
         setOpen={setDocumentation}
       />

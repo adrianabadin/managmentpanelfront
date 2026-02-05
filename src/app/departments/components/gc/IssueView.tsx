@@ -7,7 +7,7 @@ import upload from "@/icons/UPLOAD.svg";
 import addPhone from "@/icons/addPhone.svg";
 import history from "@/icons/history.svg";
 import { Spinner } from "@material-tailwind/react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AddMail } from "./AddMail";
 import { AddPhone } from "./AddPhone";
 import { DocumentationView } from "./DocumentationView";
@@ -40,12 +40,42 @@ export function IssueView({
 }) {
   const { data, isFetching, isSuccess } = useGetIssuesQuery({ id: issueId });
   const issue = data as GetIssues;
+  const [getFile] = apiSlice.endpoints.getFiles.useLazyQuerySubscription();
   const [addPhoneOpen, setAddPhoneOpen] = useState<boolean>(false);
   const [addMailOpen, setAddMailOpen] = useState<boolean>(false);
   const [interventionHistory, setOpenHistory] = useState<boolean>(false);
   const [openIntervention, setIssueIntervencionOpen] = useState<boolean>(false);
   const [openDoc, setOpenDoc] = useState<boolean>(false);
   const [derivarOpen, setDerivarOpen] = useState<boolean>(false);
+  const [fileUrl, setFileUrl] = useState<
+    Array<{
+      data: string;
+      driveId: string;
+      id: string;
+      name: string;
+      description: string;
+    }>
+  >([]);
+  useEffect(() => {
+    if (Array.isArray(issue?.files) && issue?.files.length > 0) {
+      const files = issue.files.map((file) => {
+        getFile(file.driveId)
+          .unwrap()
+          .then((res) => {
+            const blob = new Blob([
+              new Uint8Array(Buffer.from(res.data, "base64")),
+            ]);
+            const urlToPush = { ...file, data: URL.createObjectURL(blob) };
+            setFileUrl((prev) => {
+              if (prev?.find((item) => item.id === urlToPush.id)) {
+                return prev;
+              } else return [...prev, urlToPush];
+            });
+          });
+      });
+    }
+  }, [getFile, setFileUrl, issue]);
+
   return isFetching ? (
     <Spinner />
   ) : isSuccess && issue.state !== undefined ? (
@@ -186,11 +216,7 @@ export function IssueView({
           Derivar
         </Button>
       </DialogFooter>
-      <DocumentationView
-        open={openDoc}
-        setOpen={setOpenDoc}
-        files={issue["files"]}
-      />
+      <DocumentationView open={openDoc} setOpen={setOpenDoc} files={fileUrl} />
       <IssueIntervention
         open={openIntervention}
         id={issue.id}

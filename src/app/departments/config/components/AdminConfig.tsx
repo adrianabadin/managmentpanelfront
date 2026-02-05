@@ -1,18 +1,31 @@
 "use client";
 import {
   apiSlice,
+  useDeleteUserMutation,
   useDropAdminMutation,
   useGetUsersQuery,
+  useReviveUserMutation,
   useSetAdminMutation,
 } from "@/app/ReduxGlobals/Features/apiSlice";
+import { useAppDispatch } from "@/app/ReduxGlobals/store";
 import { Button, Spinner, Typography } from "@material-tailwind/react";
 import Card, {
   CardBody,
   CardHeader,
 } from "@material-tailwind/react/components/Card";
+import { useEffect, useState } from "react";
 
 export default function AdminConfig() {
   const { data, isFetching, isSuccess } = useGetUsersQuery({});
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    data?.forEach((user) => {
+      dispatch(
+        apiSlice.util.upsertQueryData("getUsers", { id: user.id }, [user]),
+      );
+    });
+  }, [data, dispatch]);
 
   return (
     <>
@@ -45,19 +58,71 @@ function UserCard({
 }) {
   const [setAdmin] = useSetAdminMutation();
   const [dropAdmin] = useDropAdminMutation();
+  // const [] = useSta
+  const [
+    reviveUser,
+    {
+      isError: isReviveError,
+      isSuccess: isReviveSuccess,
+      isLoading: isReviveLoading,
+    },
+  ] = useReviveUserMutation();
+  const [
+    deleteUser,
+    { isError, isSuccess: isDeleteSuccess, isLoading: isDeleteLoading },
+  ] = useDeleteUserMutation();
+  const [isDelete, setIsDelete] = useState<boolean>(true);
   return (
     <>
-      <Card className="mt-6 w-3/5">
-        <CardBody className="flex flex-col justify-center items-center">
-          <Typography variant="h3">{`${name} ${lastname}`}</Typography>
-          <Button
-            variant="gradient"
-            onClick={isAdmin ? () => dropAdmin(id) : () => setAdmin(id)}
-            color={`${isAdmin ? "green" : "blue"}`}
-            className="m-4"
-          >
-            {isAdmin ? "Administrador" : "Usuario"}
-          </Button>
+      <Card placeholder={""} className="mt-6 w-3/5">
+        <CardBody
+          className={`flex flex-col justify-center items-center  `}
+          placeholder={""}
+        >
+          <Typography
+            variant="h3"
+            placeholder={""}
+          >{`${name} ${lastname}`}</Typography>
+          <div className="flex content-between">
+            <Button
+              placeholder={""}
+              variant="gradient"
+              onClick={isAdmin ? () => dropAdmin(id) : () => setAdmin(id)}
+              color={`${isAdmin ? "green" : "blue"}`}
+              className="m-4"
+            >
+              {isAdmin ? "Administrador" : "Usuario"}
+            </Button>
+            <Button
+              placeholder={""}
+              variant="gradient"
+              color={`${isDelete ? "red" : "yellow"}`}
+              className="m-4"
+              onClick={() => {
+                if (isDelete) {
+                  deleteUser({ id })
+                    .unwrap()
+                    .then(() => {
+                      setIsDelete((prev) => !prev);
+                    });
+                } else {
+                  reviveUser({ id })
+                    .unwrap()
+                    .then(() => {
+                      setIsDelete((prev) => !prev);
+                    });
+                }
+              }}
+            >
+              {isDeleteLoading || isReviveLoading ? (
+                <Spinner />
+              ) : isDelete ? (
+                "Borrar Usuario"
+              ) : (
+                "Restaurar Usuario"
+              )}
+            </Button>
+          </div>
         </CardBody>
       </Card>
     </>
